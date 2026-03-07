@@ -1,0 +1,132 @@
+{
+  "version": "1.0.0",
+  "components": [
+    {
+      "name": "Button",
+      "import": "@/components/Button",
+      "description": "インタラクティブなアクションを実行するためのボタンコンポーネント。クリック可能な要素には必ずこれを使うこと。divやspanにonClickを付けることは禁止。",
+      "props": {
+        "variant": {
+          "type": "enum",
+          "values": ["primary", "secondary", "ghost", "destructive"],
+          "default": "primary",
+          "required": false
+        },
+        "size": {
+          "type": "enum",
+          "values": ["sm", "md", "lg"],
+          "default": "md",
+          "required": false
+        },
+        "disabled": {
+          "type": "boolean",
+          "default": false,
+          "required": false
+        },
+        "loading": {
+          "type": "boolean",
+          "default": false,
+          "required": false
+        },
+        "children": {
+          "type": "ReactNode",
+          "required": true
+        },
+        "onClick": {
+          "type": "() => void",
+          "required": false
+        }
+      },
+      "examples": [
+        "<Button variant=\"primary\">送信する</Button>",
+        "<Button variant=\"secondary\" size=\"sm\">キャンセル</Button>",
+        "<Button variant=\"destructive\" loading={isDeleting}>削除する</Button>",
+        "<Button variant=\"ghost\" disabled>編集不可</Button>"
+      ],
+      "antiPatterns": [
+        "<button style={{backgroundColor: '#2563EB', padding: '12px'}}>NG: 生CSS値を使用</button>",
+        "<div onClick={handler} style={{cursor:'pointer'}}>NG: divをボタン代わりに使用</div>",
+        "<a onClick={handler}>NG: hrefなしのaタグをボタン代わりに使用</a>"
+      ]
+    },
+    {
+      "name": "Input",
+      "import": "@/components/Input",
+      "description": "テキスト入力フィールド。labelは必須。labelなしのinputはアクセシビリティ違反。",
+      "props": {
+        "label": {
+          "type": "string",
+          "required": true
+        },
+        "placeholder": {
+          "type": "string",
+          "required": false
+        },
+        "value": {
+          "type": "string",
+          "required": true
+        },
+        "onChange": {
+          "type": "(value: string) => void",
+          "required": true
+        },
+        "error": {
+          "type": "string",
+          "required": false
+        },
+        "disabled": {
+          "type": "boolean",
+          "default": false,
+          "required": false
+        },
+        "type": {
+          "type": "enum",
+          "values": ["text", "email", "password", "number", "tel"],
+          "default": "text",
+          "required": false
+        }
+      },
+      "examples": [
+        "<Input label=\"メールアドレス\" value={email} onChange={setEmail} />",
+        "<Input label=\"パスワード\" type=\"password\" error={errors.password} value={password} onChange={setPassword} />",
+        "<Input label=\"検索\" placeholder=\"キーワードを入力\" value={query} onChange={setQuery} />"
+      ],
+      "antiPatterns": [
+        "<input placeholder=\"メールアドレス\" /> // NG: labelなし、アクセシビリティ違反",
+        "<input style={{border: '1px solid #E5E7EB'}} /> // NG: 生CSS値 + labelなし"
+      ]
+    },
+    {
+      "name": "Card",
+      "import": "@/components/Card",
+      "description": "コンテンツをグループ化するコンテナコンポーネント。borderとpadding付きのdivを自分で実装することは禁止。",
+      "props": {
+        "children": {
+          "type": "ReactNode",
+          "required": true
+        },
+        "padding": {
+          "type": "enum",
+          "values": ["sm", "md", "lg"],
+          "default": "md",
+          "required": false
+        },
+        "shadow": {
+          "type": "enum",
+          "values": ["none", "sm", "md", "lg"],
+          "default": "sm",
+          "required": false
+        }
+      },
+      "examples": [
+        "<Card><h2>タイトル</h2><p>コンテンツ</p></Card>",
+        "<Card padding=\"lg\" shadow=\"md\">詳細コンテンツ</Card>",
+        "<Card shadow=\"none\">フラットカード</Card>"
+      ],
+      "antiPatterns": [
+        "<div style={{border: '1px solid #E5E7EB', borderRadius: '8px', padding: '16px'}}>NG: Cardを再実装</div>",
+        "<div className=\"p-4 border rounded-lg\">NG: Tailwindでカードを再実装</div>"
+      ]
+    }
+  ]
+}

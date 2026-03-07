@@ -1,0 +1,34 @@
+/* NG: AI生成コードの典型例 - デザイントークンを使わずに生の値を使用 */
+
+.bad-button {
+  background-color: #2563EB;        /* NG: var(--color-primary) を使うべき */
+  color: #ffffff;                   /* NG: var(--color-bg-primary) を使うべき */
+  padding: 12px 24px;              /* NG: var(--space-200) var(--space-400) を使うべき */
+  border-radius: 8px;              /* NG: var(--radius-md) を使うべき */
+  font-family: Inter, sans-serif;  /* NG: var(--font-family-base) を使うべき */
+  font-size: 14px;                 /* NG: var(--font-size-sm) を使うべき */
+}
+
+.bad-button:hover {
+  background-color: #1D4ED8;       /* NG: var(--color-primary-hover) を使うべき */
+}
+
+.bad-card {
+  background: #F9FAFB;             /* NG: var(--color-bg-secondary) を使うべき */
+  border: 1px solid #E5E7EB;       /* NG: var(--color-border) を使うべき */
+  border-radius: 12px;             /* NG: var(--radius-lg) を使うべき */
+  padding: 16px;                   /* NG: var(--space-300) を使うべき */
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); /* NG: var(--shadow-sm) を使うべき */
+}
+
+.bad-text-primary {
+  color: #111827;                  /* NG: var(--color-text-primary) を使うべき */
+  font-size: 20px;                 /* NG: var(--font-size-xl) を使うべき */
+  font-weight: 600;                /* NG: var(--font-weight-semibold) を使うべき */
+  line-height: 1.5;               /* NG: var(--line-height-base) を使うべき */
+}
+
+.bad-text-secondary {
+  color: #6B7280;                  /* NG: var(--color-text-secondary) を使うべき */
+  font-size: 14px;                 /* NG: var(--font-size-sm) を使うべき */
+}

@@ -1,0 +1,47 @@
+{
+  "overall": 51,
+  "dimensions": [
+    {
+      "name": "Token Compliance",
+      "score": 29,
+      "weight": 0.25,
+      "details": "13 errors, 3 warnings across 2 file(s)"
+    },
+    {
+      "name": "Component Reuse",
+      "score": 38,
+      "weight": 0.15,
+      "details": "3 registered / 8 total (38% reuse rate)"
+    },
+    {
+      "name": "Code Structure",
+      "score": 100,
+      "weight": 0.15,
+      "details": "No structural issues"
+    },
+    {
+      "name": "Accessibility",
+      "score": null,
+      "weight": 0.2,
+      "details": "Not measured",
+      "runHint": "npx @axe-core/cli <url>"
+    },
+    {
+      "name": "Performance",
+      "score": null,
+      "weight": 0.15,
+      "details": "Not measured",
+      "runHint": "npx lighthouse <url> --output=json"
+    },
+    {
+      "name": "Visual Consistency",
+      "score": null,
+      "weight": 0.1,
+      "details": "Not measured",
+      "runHint": "npx chromatic --project-token=<token>"
+    }
+  ],
+  "availableDimensions": 3,
+  "totalDimensions": 6,
+  "timestamp": "2026-03-06T23:22:57.902Z"
+}

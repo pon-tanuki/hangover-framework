@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<!-- OK: アクセシビリティを正しく実装した例 -->
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>Good Component</title>
+  <style>
+    .good-text { color: #111827; background: #fff; font-size: 16px; }
+    button:focus { outline: 2px solid #2563EB; outline-offset: 2px; }
+  </style>
+</head>
+<body>
+
+  <!-- OK: alt属性あり -->
+  <img src="logo.png" alt="会社ロゴ">
+
+  <!-- OK: labelとinputが紐付いている -->
+  <div>
+    <label for="email">メールアドレス</label>
+    <input type="email" id="email" placeholder="example@example.com" autocomplete="email">
+  </div>
+
+  <!-- OK: labelとinputが紐付いている -->
+  <div>
+    <label for="password">パスワード</label>
+    <input type="password" id="password" autocomplete="current-password">
+  </div>
+
+  <!-- OK: buttonタグを使用 -->
+  <button type="submit" onclick="submit()">
+    送信する
+  </button>
+
+  <!-- OK: 見出し階層が正しい -->
+  <h1>メインタイトル</h1>
+  <h2>サブセクション</h2>
+
+  <!-- OK: 十分なコントラスト -->
+  <p class="good-text">このテキストはコントラスト比が十分で読みやすい</p>
+
+  <!-- OK: リンクにaltテキストあり -->
+  <a href="/next">
+    <img src="arrow.png" alt="次のページへ">
+  </a>
+
+</body>
+</html>

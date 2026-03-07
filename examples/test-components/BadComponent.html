@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<!-- NG: AI生成HTMLの典型例。アクセシビリティ違反が複数含まれている -->
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Bad Component</title>
+  <style>
+    .light-text { color: #aaa; background: #fff; font-size: 12px; }
+  </style>
+</head>
+<body>
+
+  <!-- NG: alt属性なし (critical) -->
+  <img src="logo.png">
+
+  <!-- NG: labelなしのinput (critical) -->
+  <input type="email" placeholder="メールアドレスを入力">
+
+  <!-- NG: パスワードinputにlabelなし (critical) -->
+  <input type="password" placeholder="パスワード">
+
+  <!-- NG: divにonclickでroleなし (serious) -->
+  <div onclick="submit()" style="cursor:pointer; background:#2563EB; color:#fff; padding:8px 16px;">
+    送信する
+  </div>
+
+  <!-- NG: h1 → h3（h2をスキップ）(moderate) -->
+  <h1>メインタイトル</h1>
+  <h3>サブセクション</h3>
+
+  <!-- NG: 低コントラスト (serious) -->
+  <p class="light-text">このテキストはコントラスト比が低く読みにくい</p>
+
+  <!-- NG: リンクにテキストなし (serious) -->
+  <a href="/next">
+    <img src="arrow.png">
+  </a>
+
+</body>
+</html>

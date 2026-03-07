@@ -1,0 +1,38 @@
+{
+  "name": "hangover-framework",
+  "version": "0.1.0",
+  "description": "HANGOVER: Human Audit Normalization for Generated Output, Verification, Enforcement, and Review",
+  "bin": {
+    "hangover": "./dist/cli.js"
+  },
+  "main": "./dist/index.js",
+  "files": [
+    "dist/",
+    "examples/sample-design-system/"
+  ],
+  "scripts": {
+    "build": "tsc && node -e \"require('fs').chmodSync('dist/cli.js', '755')\"",
+    "prepare": "npm run build",
+    "dev:compile": "ts-node src/spec-compiler/index.ts",
+    "dev:validate": "ts-node src/token-validator/index.ts",
+    "dev:dqs": "ts-node src/dqs/index.ts",
+    "dev:track": "ts-node src/consistency-tracker/index.ts",
+    "hangover:compile": "ts-node src/spec-compiler/index.ts",
+    "hangover:validate": "ts-node src/token-validator/index.ts",
+    "hangover:dqs": "ts-node src/dqs/index.ts",
+    "hangover:track": "ts-node src/consistency-tracker/index.ts"
+  },
+  "dependencies": {
+    "axe-core": "^4.11.1",
+    "jsdom": "^28.1.0"
+  },
+  "devDependencies": {
+    "@types/jsdom": "^28.0.0",
+    "@types/node": "^20.0.0",
+    "ts-node": "^10.9.0",
+    "typescript": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
