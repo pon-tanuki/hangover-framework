@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="ユーザーダッシュボード - 売上・ユーザー・注文の管理画面" />
+    <title>ダッシュボード | AdminPanel</title>
+    <link rel="stylesheet" href="Dashboard.css" />
+    <style>
+      /* HTML版固有スタイル（CSS変数が読み込まれない旧ブラウザ向けフォールバック） */
+      @media (prefers-color-scheme: dark) {
+        /* ダークモード対応の余地（今回はライトのみ実装） */
+      }
+    </style>
+  </head>
+  <body>
+    <!-- スキップナビゲーション（アクセシビリティ） -->
+    <a href="#main-content" class="skip-link">メインコンテンツへスキップ</a>
+
+    <div class="dashboard">
+      <!-- ヘッダー -->
+      <header class="dashboard__header" role="banner">
+        <div class="dashboard__header-inner">
+          <div class="dashboard__logo" aria-label="AdminPanel ホーム">
+            <span class="dashboard__logo-icon" aria-hidden="true">◈</span>
+            <span class="dashboard__logo-text">AdminPanel</span>
+          </div>
+          <div class="dashboard__header-user">
+            <span
+              class="dashboard__username"
+              aria-label="ログイン中: 管理者 太郎"
+            >
+              管理者 太郎
+            </span>
+            <button
+              type="button"
+              class="btn btn--outline"
+              id="logout-btn"
+              aria-label="ログアウト"
+            >
+              ログアウト
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <!-- メインコンテンツ -->
+      <main class="dashboard__main" id="main-content" tabindex="-1">
+        <div class="dashboard__container">
+
+          <!-- KPIカードセクション -->
+          <section aria-labelledby="kpi-heading">
+            <h2 id="kpi-heading" class="section-title">今月のサマリー</h2>
+            <div class="kpi-grid">
+
+              <article class="kpi-card" aria-label="今月の売上">
+                <p class="kpi-card__title">今月の売上</p>
+                <p class="kpi-card__value">¥2,480,000</p>
+                <p class="kpi-card__trend kpi-card__trend--up" aria-label="前月比 +12.5%">
+                  <span aria-hidden="true">▲</span> +12.5%
+                </p>
+              </article>
+
+              <article class="kpi-card" aria-label="新規ユーザー数">
+                <p class="kpi-card__title">新規ユーザー数</p>
+                <p class="kpi-card__value">1,284 人</p>
+                <p class="kpi-card__trend kpi-card__trend--up" aria-label="前月比 +8.3%">
+                  <span aria-hidden="true">▲</span> +8.3%
+                </p>
+              </article>
+
+              <article class="kpi-card" aria-label="コンバージョン率">
+                <p class="kpi-card__title">コンバージョン率</p>
+                <p class="kpi-card__value">3.67%</p>
+                <p class="kpi-card__trend kpi-card__trend--down" aria-label="前月比 -0.4%">
+                  <span aria-hidden="true">▼</span> -0.4%
+                </p>
+              </article>
+
+            </div>
+          </section>
+
+          <!-- 注文テーブルセクション -->
+          <section aria-labelledby="orders-heading">
+            <h2 id="orders-heading" class="section-title">最近の注文</h2>
+
+            <div class="table-wrapper">
+              <table
+                class="orders-table"
+                aria-label="最近の注文一覧"
+                aria-describedby="orders-caption"
+              >
+                <caption id="orders-caption" class="visually-hidden">
+                  最新12件の注文情報。注文ID・顧客名・金額・ステータスを表示しています。
+                </caption>
+                <thead>
+                  <tr>
+                    <th scope="col">注文ID</th>
+                    <th scope="col">顧客名</th>
+                    <th scope="col">金額</th>
+                    <th scope="col">ステータス</th>
+                  </tr>
+                </thead>
+                <tbody id="orders-tbody">
+                  <!-- JavaScriptで動的に挿入 -->
+                </tbody>
+              </table>
+            </div>
+
+            <!-- ページネーション -->
+            <nav class="pagination" aria-label="注文一覧のページネーション">
+              <button
+                type="button"
+                class="btn btn--secondary"
+                id="prev-btn"
+                aria-label="前のページへ"
+                disabled
+              >
+                ← 前へ
+              </button>
+              <span
+                class="pagination__info"
+                id="page-info"
+                aria-live="polite"
+                aria-atomic="true"
+              >
+                1 / 3 ページ
+              </span>
+              <button
+                type="button"
+                class="btn btn--secondary"
+                id="next-btn"
+                aria-label="次のページへ"
+              >
+                次へ →
+              </button>
+            </nav>
+          </section>
+
+        </div>
+      </main>
+    </div>
+
+    <!-- visually-hidden ユーティリティ -->
+    <style>
+      .visually-hidden {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+      }
+    </style>
+
+    <script>
+      // --- データ ---
+      const ORDERS = [
+        { id: "ORD-001", customer: "山田 太郎",  amount: 12800, status: "completed" },
+        { id: "ORD-002", customer: "佐藤 花子",  amount:  5400, status: "pending"   },
+        { id: "ORD-003", customer: "鈴木 一郎",  amount: 23100, status: "completed" },
+        { id: "ORD-004", customer: "田中 美咲",  amount:  8700, status: "cancelled" },
+        { id: "ORD-005", customer: "伊藤 健太",  amount: 15600, status: "completed" },
+        { id: "ORD-006", customer: "渡辺 奈々",  amount:  3200, status: "pending"   },
+        { id: "ORD-007", customer: "中村 翔太",  amount: 41000, status: "completed" },
+        { id: "ORD-008", customer: "小林 さくら", amount:  9800, status: "pending"   },
+        { id: "ORD-009", customer: "加藤 隆",    amount:  7300, status: "cancelled" },
+        { id: "ORD-010", customer: "松本 由紀",  amount: 18500, status: "completed" },
+        { id: "ORD-011", customer: "井上 浩二",  amount:  6100, status: "completed" },
+        { id: "ORD-012", customer: "木村 あやか", amount: 29000, status: "pending"   },
+      ];
+
+      const STATUS_LABELS = {
+        completed: "完了",
+        pending:   "保留中",
+        cancelled: "キャンセル",
+      };
+
+      const ORDERS_PER_PAGE = 5;
+
+      // --- 状態 ---
+      let currentPage = 1;
+      const totalPages = Math.ceil(ORDERS.length / ORDERS_PER_PAGE);
+
+      // --- DOM参照 ---
+      const tbody    = document.getElementById("orders-tbody");
+      const pageInfo = document.getElementById("page-info");
+      const prevBtn  = document.getElementById("prev-btn");
+      const nextBtn  = document.getElementById("next-btn");
+
+      // --- レンダリング ---
+      function renderTable() {
+        const start   = (currentPage - 1) * ORDERS_PER_PAGE;
+        const visible = ORDERS.slice(start, start + ORDERS_PER_PAGE);
+
+        tbody.innerHTML = visible
+          .map(
+            (order) => `
+              <tr>
+                <td class="orders-table__id">${escapeHtml(order.id)}</td>
+                <td>${escapeHtml(order.customer)}</td>
+                <td class="orders-table__amount">¥${order.amount.toLocaleString("ja-JP")}</td>
+                <td>
+                  <span
+                    class="status-badge status-badge--${order.status}"
+                    aria-label="ステータス: ${STATUS_LABELS[order.status]}"
+                  >
+                    ${STATUS_LABELS[order.status]}
+                  </span>
+                </td>
+              </tr>
+            `
+          )
+          .join("");
+
+        pageInfo.textContent = `${currentPage} / ${totalPages} ページ`;
+        prevBtn.disabled = currentPage === 1;
+        nextBtn.disabled = currentPage === totalPages;
+      }
+
+      function escapeHtml(str) {
+        return str
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+      }
+
+      // --- イベントリスナー ---
+      prevBtn.addEventListener("click", () => {
+        if (currentPage > 1) {
+          currentPage--;
+          renderTable();
+        }
+      });
+
+      nextBtn.addEventListener("click", () => {
+        if (currentPage < totalPages) {
+          currentPage++;
+          renderTable();
+        }
+      });
+
+      document.getElementById("logout-btn").addEventListener("click", () => {
+        alert("ログアウトしました");
+      });
+
+      // --- 初期描画 ---
+      renderTable();
+    </script>
+  </body>
+</html>

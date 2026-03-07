@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ログイン</title>
+  <style>
+    /* ===== Design Tokens ===== */
+    :root {
+      /* Colors */
+      --color-primary: #2563EB;
+      --color-primary-hover: #1D4ED8;
+      --color-secondary: #7C3AED;
+      --color-success: #059669;
+      --color-warning: #D97706;
+      --color-error: #DC2626;
+      --color-text-primary: #111827;
+      --color-text-secondary: #6B7280;
+      --color-text-disabled: #9CA3AF;
+      --color-bg-primary: #FFFFFF;
+      --color-bg-secondary: #F9FAFB;
+      --color-bg-tertiary: #F3F4F6;
+      --color-border: #E5E7EB;
+      --color-border-strong: #D1D5DB;
+
+      /* Spacing (8pt grid) */
+      --space-50: 2px;
+      --space-100: 4px;
+      --space-150: 8px;
+      --space-200: 12px;
+      --space-300: 16px;
+      --space-400: 24px;
+      --space-500: 32px;
+      --space-600: 48px;
+      --space-700: 64px;
+      --space-800: 96px;
+
+      /* Typography */
+      --font-family-base: 'Garamond', 'Georgia', serif;
+      --font-family-mono: 'JetBrains Mono', 'Fira Code', monospace;
+      --font-size-xs: 12px;
+      --font-size-sm: 14px;
+      --font-size-base: 16px;
+      --font-size-lg: 18px;
+      --font-size-xl: 20px;
+      --font-size-2xl: 24px;
+      --font-size-3xl: 30px;
+      --font-size-4xl: 36px;
+      --font-weight-normal: 400;
+      --font-weight-medium: 500;
+      --font-weight-semibold: 600;
+      --font-weight-bold: 700;
+
+      /* Border Radius */
+      --radius-sm: 4px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --radius-xl: 16px;
+      --radius-full: 9999px;
+
+      /* Shadows */
+      --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07);
+      --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    /* ===== Reset ===== */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* ===== Base ===== */
+    body {
+      font-family: var(--font-family-base);
+      font-size: var(--font-size-base);
+      color: var(--color-text-primary);
+      background-color: var(--color-bg-secondary);
+    }
+
+    /* ===== Layout ===== */
+    .login-page {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: var(--space-400);
+    }
+
+    /* ===== Card ===== */
+    .card {
+      background-color: var(--color-bg-primary);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      padding: var(--space-600);
+      box-shadow: var(--shadow-md);
+      width: 100%;
+      max-width: 420px;
+    }
+
+    /* ===== Form ===== */
+    .login-form {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-400);
+    }
+
+    .login-form__title {
+      font-family: var(--font-family-base);
+      font-size: var(--font-size-2xl);
+      font-weight: var(--font-weight-bold);
+      color: var(--color-text-primary);
+      text-align: center;
+    }
+
+    .login-form__fields {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-300);
+    }
+
+    /* ===== Form Field ===== */
+    .form-field {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-100);
+    }
+
+    .form-field__label {
+      font-family: var(--font-family-base);
+      font-size: var(--font-size-sm);
+      font-weight: var(--font-weight-medium);
+      color: var(--color-text-primary);
+    }
+
+    .form-field__input {
+      font-family: var(--font-family-base);
+      font-size: var(--font-size-base);
+      color: var(--color-text-primary);
+      background-color: var(--color-bg-primary);
+      border: 1px solid var(--color-border-strong);
+      border-radius: var(--radius-md);
+      padding: var(--space-200) var(--space-300);
+      width: 100%;
+      transition: border-color 0.15s ease;
+    }
+
+    .form-field__input::placeholder {
+      color: var(--color-text-disabled);
+    }
+
+    .form-field__input:focus {
+      outline: none;
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 var(--space-50) var(--color-primary);
+    }
+
+    .form-field__input[aria-invalid="true"] {
+      border-color: var(--color-error);
+    }
+
+    .form-field__input[aria-invalid="true"]:focus {
+      box-shadow: 0 0 0 var(--space-50) var(--color-error);
+    }
+
+    .form-field__error {
+      font-family: var(--font-family-base);
+      font-size: var(--font-size-xs);
+      font-weight: var(--font-weight-normal);
+      color: var(--color-error);
+    }
+
+    /* ===== Forgot Password ===== */
+    .login-form__forgot {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: calc(var(--space-150) * -1);
+    }
+
+    .login-form__forgot-link {
+      font-family: var(--font-family-base);
+      font-size: var(--font-size-sm);
+      font-weight: var(--font-weight-normal);
+      color: var(--color-primary);
+      text-decoration: none;
+    }
+
+    .login-form__forgot-link:hover {
+      color: var(--color-primary-hover);
+      text-decoration: underline;
+    }
+
+    .login-form__forgot-link:focus-visible {
+      outline: var(--space-50) solid var(--color-primary);
+      outline-offset: var(--space-50);
+      border-radius: var(--radius-sm);
+    }
+
+    /* ===== Button ===== */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-family-base);
+      font-weight: var(--font-weight-semibold);
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.15s ease, opacity 0.15s ease;
+      width: 100%;
+    }
+
+    .btn--primary {
+      background-color: var(--color-primary);
+      color: var(--color-bg-primary);
+      border-radius: var(--radius-md);
+    }
+
+    .btn--primary:hover:not(:disabled) {
+      background-color: var(--color-primary-hover);
+    }
+
+    .btn--primary:focus-visible {
+      outline: var(--space-50) solid var(--color-primary);
+      outline-offset: var(--space-100);
+    }
+
+    .btn--primary:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .btn--lg {
+      font-size: var(--font-size-base);
+      padding: var(--space-200) var(--space-400);
+      border-radius: var(--radius-md);
+    }
+  </style>
+</head>
+<body>
+  <main class="login-page">
+    <div class="card" role="region" aria-label="ログインフォーム">
+      <form
+        class="login-form"
+        action="/login"
+        method="post"
+        novalidate
+        aria-label="ログインフォーム"
+      >
+        <h1 class="login-form__title">ログイン</h1>
+
+        <div class="login-form__fields">
+          <!-- メールアドレス -->
+          <div class="form-field">
+            <label class="form-field__label" for="email">
+              メールアドレス
+            </label>
+            <input
+              class="form-field__input"
+              id="email"
+              name="email"
+              type="email"
+              placeholder="example@example.com"
+              autocomplete="email"
+              aria-required="true"
+              aria-describedby="email-error"
+            />
+            <span
+              class="form-field__error"
+              id="email-error"
+              role="alert"
+              aria-live="polite"
+            ></span>
+          </div>
+
+          <!-- パスワード -->
+          <div class="form-field">
+            <label class="form-field__label" for="password">
+              パスワード
+            </label>
+            <input
+              class="form-field__input"
+              id="password"
+              name="password"
+              type="password"
+              placeholder="8文字以上"
+              autocomplete="current-password"
+              aria-required="true"
+              aria-describedby="password-error"
+              minlength="8"
+            />
+            <span
+              class="form-field__error"
+              id="password-error"
+              role="alert"
+              aria-live="polite"
+            ></span>
+          </div>
+        </div>
+
+        <!-- パスワードを忘れた -->
+        <div class="login-form__forgot">
+          <a
+            class="login-form__forgot-link"
+            href="/forgot-password"
+          >
+            パスワードを忘れた方はこちら
+          </a>
+        </div>
+
+        <!-- ログインボタン -->
+        <button
+          class="btn btn--primary btn--lg"
+          type="submit"
+          aria-label="ログイン"
+        >
+          ログイン
+        </button>
+      </form>
+    </div>
+  </main>
+</body>
+</html>

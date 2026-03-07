@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>通知センター</title>
+  <style>
+    /* =====================================================
+       Design Tokens (:root)
+       全てのスタイルはここで定義したカスタムプロパティを使用する。
+       生の色値・px値・フォント名の直書きは禁止。
+       ===================================================== */
+    :root {
+      /* Colors */
+      --color-primary: #2563EB;
+      --color-primary-hover: #1D4ED8;
+      --color-success: #059669;
+      --color-warning: #D97706;
+      --color-error: #DC2626;
+      --color-text-primary: #111827;
+      --color-text-secondary: #6B7280;
+      --color-bg-primary: #FFFFFF;
+      --color-bg-secondary: #F9FAFB;
+      --color-bg-tertiary: #F3F4F6;
+      --color-border: #E5E7EB;
+      --color-border-strong: #D1D5DB;
+
+      /* Spacing (8pt grid) */
+      --space-50: 2px;
+      --space-100: 4px;
+      --space-150: 8px;
+      --space-200: 12px;
+      --space-300: 16px;
+      --space-400: 24px;
+      --space-500: 32px;
+      --space-600: 48px;
+
+      /* Typography */
+      --font-family-base: 'Garamond', 'Georgia', serif;
+      --font-size-xs: 12px;
+      --font-size-sm: 14px;
+      --font-size-base: 16px;
+      --font-size-lg: 18px;
+      --font-size-2xl: 24px;
+      --font-weight-medium: 500;
+      --font-weight-semibold: 600;
+      --font-weight-bold: 700;
+
+      /* Border Radius */
+      --radius-sm: 4px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --radius-full: 9999px;
+
+      /* Shadows */
+      --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07);
+    }
+
+    /* =====================================================
+       Reset & Base
+       ===================================================== */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-family-base);
+      font-size: var(--font-size-base);
+      color: var(--color-text-primary);
+      background-color: var(--color-bg-secondary);
+      line-height: 1.5;
+    }
+
+    /* =====================================================
+       ページレイアウト
+       ===================================================== */
+    .notif-page {
+      min-height: 100vh;
+    }
+
+    .notif-container {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: var(--space-500) var(--space-400);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-400);
+    }
+
+    /* =====================================================
+       ページヘッダー
+       ===================================================== */
+    .notif-page-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: var(--space-300);
+    }
+
+    .notif-page-header__title-group {
+      display: flex;
+      align-items: center;
+      gap: var(--space-150);
+    }
+
+    .notif-page-header__title {
+      font-size: var(--font-size-2xl);
+      font-weight: var(--font-weight-bold);
+      color: var(--color-text-primary);
+    }
+
+    .notif-page-header__badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: var(--space-400);
+      height: var(--space-400);
+      padding: 0 var(--space-150);
+      background-color: var(--color-primary);
+      color: var(--color-bg-primary);
+      font-size: var(--font-size-sm);
+      font-weight: var(--font-weight-semibold);
+      border-radius: var(--radius-full);
+      line-height: 1;
+    }
+
+    /* =====================================================
+       Button（デザインシステムコンポーネント）
+       ===================================================== */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-150);
+      border: none;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      font-family: var(--font-family-base);
+      font-weight: var(--font-weight-medium);
+      text-decoration: none;
+      transition: background-color 0.15s ease, color 0.15s ease;
+    }
+
+    .btn:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: var(--space-50);
+    }
+
+    .btn--sm {
+      font-size: var(--font-size-sm);
+      padding: var(--space-100) var(--space-200);
+    }
+
+    .btn--md {
+      font-size: var(--font-size-base);
+      padding: var(--space-150) var(--space-300);
+    }
+
+    .btn--secondary {
+      background-color: var(--color-bg-primary);
+      color: var(--color-text-primary);
+      border: 1px solid var(--color-border-strong);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .btn--secondary:hover:not(:disabled) {
+      background-color: var(--color-bg-tertiary);
+    }
+
+    .btn--ghost {
+      background-color: transparent;
+      color: var(--color-text-secondary);
+    }
+
+    .btn--ghost:hover:not(:disabled) {
+      background-color: var(--color-bg-tertiary);
+      color: var(--color-text-primary);
+    }
+
+    .btn--destructive {
+      background-color: transparent;
+      color: var(--color-error);
+      border: 1px solid var(--color-error);
+    }
+
+    .btn--destructive:hover:not(:disabled) {
+      background-color: color-mix(in srgb, var(--color-error) 8%, transparent);
+    }
+
+    .btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    /* =====================================================
+       Card（デザインシステムコンポーネント）
+       ===================================================== */
+    .card {
+      background-color: var(--color-bg-primary);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+    }
+
+    .card--shadow-sm { box-shadow: var(--shadow-sm); }
+    .card--shadow-md { box-shadow: var(--shadow-md); }
+
+    .card--padding-sm { padding: var(--space-200); }
+    .card--padding-md { padding: var(--space-300); }
+    .card--padding-lg { padding: var(--space-400); }
+
+    /* =====================================================
+       通知リスト
+       ===================================================== */
+    .notif-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-200);
+    }
+
+    /* =====================================================
+       通知アイテム
+       ===================================================== */
+    .notif-item--read {
+      opacity: 0.75;
+    }
+
+    .notif-item--unread .notif-item__title {
+      font-weight: var(--font-weight-semibold);
+    }
+
+    .notif-item__inner {
+      display: flex;
+      gap: var(--space-300);
+      align-items: flex-start;
+    }
+
+    .notif-item__icon-col {
+      flex-shrink: 0;
+      padding-top: var(--space-100);
+    }
+
+    /* アイコン */
+    .notif-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: var(--space-500);
+      height: var(--space-500);
+      border-radius: var(--radius-full);
+      font-size: var(--font-size-sm);
+      font-weight: var(--font-weight-bold);
+    }
+
+    .notif-icon--info {
+      background-color: color-mix(in srgb, var(--color-primary) 12%, transparent);
+      color: var(--color-primary);
+    }
+
+    .notif-icon--success {
+      background-color: color-mix(in srgb, var(--color-success) 12%, transparent);
+      color: var(--color-success);
+    }
+
+    .notif-icon--warning {
+      background-color: color-mix(in srgb, var(--color-warning) 12%, transparent);
+      color: var(--color-warning);
+    }
+
+    .notif-icon--error {
+      background-color: color-mix(in srgb, var(--color-error) 12%, transparent);
+      color: var(--color-error);
+    }
+
+    /* コンテンツ列 */
+    .notif-item__content {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-150);
+    }
+
+    .notif-item__header {
+      display: flex;
+      align-items: center;
+      gap: var(--space-150);
+    }
+
+    .notif-item__title {
+      font-size: var(--font-size-base);
+      font-weight: var(--font-weight-medium);
+      color: var(--color-text-primary);
+      line-height: 1.4;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .notif-item__unread-badge {
+      flex-shrink: 0;
+      width: var(--space-150);
+      height: var(--space-150);
+      border-radius: var(--radius-full);
+      background-color: var(--color-primary);
+    }
+
+    .notif-item__body {
+      font-size: var(--font-size-sm);
+      color: var(--color-text-secondary);
+      line-height: 1.6;
+    }
+
+    .notif-item__footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: var(--space-150);
+    }
+
+    .notif-item__timestamp {
+      font-size: var(--font-size-sm);
+      color: var(--color-text-secondary);
+    }
+
+    .notif-item__actions {
+      display: flex;
+      gap: var(--space-150);
+      flex-wrap: wrap;
+    }
+
+    /* =====================================================
+       空状態
+       ===================================================== */
+    .notif-empty {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-200);
+      padding: var(--space-600) var(--space-400);
+      text-align: center;
+    }
+
+    .notif-empty__icon {
+      font-size: var(--font-size-2xl);
+      line-height: 1;
+    }
+
+    .notif-empty__title {
+      font-size: var(--font-size-lg);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-text-primary);
+    }
+
+    .notif-empty__body {
+      font-size: var(--font-size-sm);
+      color: var(--color-text-secondary);
+    }
+
+    /* =====================================================
+       アクセシビリティユーティリティ
+       ===================================================== */
+    .visually-hidden {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="notif-page">
+
+    <!-- スクリーンリーダー向け動的ステータス通知 -->
+    <div
+      id="status-live"
+      aria-live="polite"
+      aria-atomic="true"
+      class="visually-hidden"
+    ></div>
+
+    <div class="notif-container">
+
+      <!-- ページヘッダー -->
+      <header class="notif-page-header">
+        <div class="notif-page-header__title-group">
+          <h1 class="notif-page-header__title">通知センター</h1>
+          <span
+            class="notif-page-header__badge"
+            aria-label="未読通知 3 件"
+          >3</span>
+        </div>
+        <button
+          class="btn btn--secondary btn--md"
+          type="button"
+          id="mark-all-read-btn"
+          onclick="markAllRead()"
+        >
+          すべて既読にする
+        </button>
+      </header>
+
+      <!-- 通知一覧 -->
+      <main>
+        <h2 class="visually-hidden" id="notif-list-heading">通知一覧</h2>
+
+        <!-- 通知リスト（通知がない場合は .notif-empty を表示） -->
+        <ul
+          class="notif-list"
+          id="notif-list"
+          aria-labelledby="notif-list-heading"
+          aria-label="通知一覧（全5件、未読3件）"
+        >
+
+          <!-- 通知1: 未読・情報 -->
+          <li class="notif-item notif-item--unread" id="notif-1">
+            <article class="card card--padding-md card--shadow-sm" aria-label="未読: システムメンテナンスのお知らせ">
+              <div class="notif-item__inner">
+                <div class="notif-item__icon-col">
+                  <span class="notif-icon notif-icon--info" role="img" aria-label="情報">ℹ</span>
+                </div>
+                <div class="notif-item__content">
+                  <div class="notif-item__header">
+                    <h3 class="notif-item__title">システムメンテナンスのお知らせ</h3>
+                    <span class="notif-item__unread-badge" aria-hidden="true"></span>
+                  </div>
+                  <p class="notif-item__body">
+                    2026年3月10日（火）午前2時〜4時の間、システムメンテナンスを実施します。この間はサービスをご利用いただけません。
+                  </p>
+                  <div class="notif-item__footer">
+                    <time class="notif-item__timestamp">5分前</time>
+                    <div class="notif-item__actions">
+                      <button
+                        class="btn btn--ghost btn--sm"
+                        type="button"
+                        onclick="markAsRead('notif-1')"
+                        aria-label="システムメンテナンスのお知らせを既読にする"
+                      >
+                        既読にする
+                      </button>
+                      <button
+                        class="btn btn--destructive btn--sm"
+                        type="button"
+                        onclick="deleteNotif('notif-1')"
+                        aria-label="システムメンテナンスのお知らせを削除"
+                      >
+                        削除
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </article>
+          </li>
+
+          <!-- 通知2: 未読・成功 -->
+          <li class="notif-item notif-item--unread" id="notif-2">
+            <article class="card card--padding-md card--shadow-sm" aria-label="未読: ファイルのエクスポートが完了しました">
+              <div class="notif-item__inner">
+                <div class="notif-item__icon-col">
+                  <span class="notif-icon notif-icon--success" role="img" aria-label="成功">✓</span>
+                </div>
+                <div class="notif-item__content">
+                  <div class="notif-item__header">
+                    <h3 class="notif-item__title">ファイルのエクスポートが完了しました</h3>
+                    <span class="notif-item__unread-badge" aria-hidden="true"></span>
+                  </div>
+                  <p class="notif-item__body">
+                    リクエストされたレポート（2026年2月分）のエクスポートが完了しました。ダウンロードリンクからご確認ください。
+                  </p>
+                  <div class="notif-item__footer">
+                    <time class="notif-item__timestamp">1時間前</time>
+                    <div class="notif-item__actions">
+                      <button
+                        class="btn btn--ghost btn--sm"
+                        type="button"
+                        onclick="markAsRead('notif-2')"
+                        aria-label="ファイルのエクスポートが完了しましたを既読にする"
+                      >
+                        既読にする
+                      </button>
+                      <button
+                        class="btn btn--destructive btn--sm"
+                        type="button"
+                        onclick="deleteNotif('notif-2')"
+                        aria-label="ファイルのエクスポートが完了しましたを削除"
+                      >
+                        削除
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </article>
+          </li>
+
+          <!-- 通知3: 未読・警告 -->
+          <li class="notif-item notif-item--unread" id="notif-3">
+            <article class="card card--padding-md card--shadow-sm" aria-label="未読: ストレージ容量が上限に近づいています">
+              <div class="notif-item__inner">
+                <div class="notif-item__icon-col">
+                  <span class="notif-icon notif-icon--warning" role="img" aria-label="警告">⚠</span>
+                </div>
+                <div class="notif-item__content">
+                  <div class="notif-item__header">
+                    <h3 class="notif-item__title">ストレージ容量が上限に近づいています</h3>
+                    <span class="notif-item__unread-badge" aria-hidden="true"></span>
+                  </div>
+                  <p class="notif-item__body">
+                    現在の使用量がプランの上限（90%）に達しています。プランのアップグレードをご検討ください。
+                  </p>
+                  <div class="notif-item__footer">
+                    <time class="notif-item__timestamp">昨日 14:32</time>
+                    <div class="notif-item__actions">
+                      <button
+                        class="btn btn--ghost btn--sm"
+                        type="button"
+                        onclick="markAsRead('notif-3')"
+                        aria-label="ストレージ容量が上限に近づいていますを既読にする"
+                      >
+                        既読にする
+                      </button>
+                      <button
+                        class="btn btn--destructive btn--sm"
+                        type="button"
+                        onclick="deleteNotif('notif-3')"
+                        aria-label="ストレージ容量が上限に近づいていますを削除"
+                      >
+                        削除
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </article>
+          </li>
+
+          <!-- 通知4: 既読・情報 -->
+          <li class="notif-item notif-item--read" id="notif-4">
+            <article class="card card--padding-md card--shadow-sm" aria-label="既読: 新しいコメントが追加されました">
+              <div class="notif-item__inner">
+                <div class="notif-item__icon-col">
+                  <span class="notif-icon notif-icon--info" role="img" aria-label="情報">ℹ</span>
+                </div>
+                <div class="notif-item__content">
+                  <div class="notif-item__header">
+                    <h3 class="notif-item__title">新しいコメントが追加されました</h3>
+                  </div>
+                  <p class="notif-item__body">
+                    田中 太郎さんがプロジェクト「デザインシステム刷新」にコメントを追加しました。
+                  </p>
+                  <div class="notif-item__footer">
+                    <time class="notif-item__timestamp">2日前</time>
+                    <div class="notif-item__actions">
+                      <button
+                        class="btn btn--destructive btn--sm"
+                        type="button"
+                        onclick="deleteNotif('notif-4')"
+                        aria-label="新しいコメントが追加されましたを削除"
+                      >
+                        削除
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </article>
+          </li>
+
+          <!-- 通知5: 既読・エラー -->
+          <li class="notif-item notif-item--read" id="notif-5">
+            <article class="card card--padding-md card--shadow-sm" aria-label="既読: データの同期に失敗しました">
+              <div class="notif-item__inner">
+                <div class="notif-item__icon-col">
+                  <span class="notif-icon notif-icon--error" role="img" aria-label="エラー">✕</span>
+                </div>
+                <div class="notif-item__content">
+                  <div class="notif-item__header">
+                    <h3 class="notif-item__title">データの同期に失敗しました</h3>
+                  </div>
+                  <p class="notif-item__body">
+                    外部サービスとのデータ同期中にエラーが発生しました。設定を確認し、再度お試しください。
+                  </p>
+                  <div class="notif-item__footer">
+                    <time class="notif-item__timestamp">3日前</time>
+                    <div class="notif-item__actions">
+                      <button
+                        class="btn btn--destructive btn--sm"
+                        type="button"
+                        onclick="deleteNotif('notif-5')"
+                        aria-label="データの同期に失敗しましたを削除"
+                      >
+                        削除
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </article>
+          </li>
+
+        </ul>
+
+        <!-- 空状態（通知ゼロ時に表示） -->
+        <div class="notif-empty" id="notif-empty" role="status" aria-live="polite" hidden>
+          <span class="notif-empty__icon" aria-hidden="true">🔔</span>
+          <p class="notif-empty__title">通知はありません</p>
+          <p class="notif-empty__body">新しい通知が届くとここに表示されます。</p>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <script>
+    // 通知の動的操作（デモ用スクリプト）
+    // aria-live="polite" の #status-live で操作結果をスクリーンリーダーに通知する
+
+    function announceStatus(message) {
+      const live = document.getElementById('status-live');
+      live.textContent = '';
+      // 次のフレームでセットすることで aria-live の変化を確実に検知させる
+      requestAnimationFrame(() => {
+        live.textContent = message;
+      });
+    }
+
+    function updateBadge() {
+      const unreadItems = document.querySelectorAll('.notif-item--unread');
+      const count = unreadItems.length;
+      const badge = document.querySelector('.notif-page-header__badge');
+      const markAllBtn = document.getElementById('mark-all-read-btn');
+
+      if (count === 0) {
+        badge.hidden = true;
+        markAllBtn.hidden = true;
+      } else {
+        badge.hidden = false;
+        badge.textContent = count;
+        badge.setAttribute('aria-label', `未読通知 ${count} 件`);
+        markAllBtn.hidden = false;
+      }
+
+      // 通知リストが空の場合は空状態を表示
+      const list = document.getElementById('notif-list');
+      const empty = document.getElementById('notif-empty');
+      const totalItems = document.querySelectorAll('#notif-list .notif-item');
+      if (totalItems.length === 0) {
+        list.hidden = true;
+        empty.hidden = false;
+      }
+    }
+
+    function markAsRead(id) {
+      const item = document.getElementById(id);
+      if (!item) return;
+      item.classList.remove('notif-item--unread');
+      item.classList.add('notif-item--read');
+
+      // 未読バッジと「既読にする」ボタンを削除
+      const badge = item.querySelector('.notif-item__unread-badge');
+      if (badge) badge.remove();
+      const readBtn = item.querySelector('.btn--ghost');
+      if (readBtn) readBtn.remove();
+
+      // article の aria-label を更新
+      const article = item.querySelector('article');
+      if (article) {
+        const title = item.querySelector('.notif-item__title').textContent;
+        article.setAttribute('aria-label', `既読: ${title}`);
+      }
+
+      announceStatus('通知を既読にしました');
+      updateBadge();
+    }
+
+    function deleteNotif(id) {
+      const item = document.getElementById(id);
+      if (!item) return;
+      const wasUnread = item.classList.contains('notif-item--unread');
+      item.remove();
+      announceStatus('通知を削除しました');
+      updateBadge();
+    }
+
+    function markAllRead() {
+      document.querySelectorAll('.notif-item--unread').forEach((item) => {
+        item.classList.remove('notif-item--unread');
+        item.classList.add('notif-item--read');
+
+        const badge = item.querySelector('.notif-item__unread-badge');
+        if (badge) badge.remove();
+        const readBtn = item.querySelector('.btn--ghost');
+        if (readBtn) readBtn.remove();
+
+        const article = item.querySelector('article');
+        if (article) {
+          const title = item.querySelector('.notif-item__title').textContent;
+          article.setAttribute('aria-label', `既読: ${title}`);
+        }
+      });
+
+      announceStatus('すべての通知を既読にしました');
+      updateBadge();
+    }
+  </script>
+</body>
+</html>

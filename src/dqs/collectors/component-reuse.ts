@@ -5,10 +5,13 @@ import { parseComponentsJSON } from '../../spec-compiler/parsers';
 const SKIP_DIRS = new Set(['node_modules', '.git', 'dist', '.next', 'build', 'coverage']);
 
 // Raw HTML elements that each registered component is meant to replace
+// Patterns match raw HTML that should be replaced by registered components.
+// Case-sensitive (no `i` flag) so PascalCase component names like <Button>, <Input>, <Card>
+// are never mistakenly counted as raw HTML equivalents.
 const COMPONENT_RAW_EQUIVALENTS: Record<string, RegExp> = {
-  Button: /<(?:button|div|span|a)\s[^>]*onClick/gi,
-  Input: /<input\b/gi,
-  Card: /<div\s[^>]*(?:border|rounded|shadow)/gi,
+  Button: /<(?:button|div|span|a)\s[^>]*onClick/g,
+  Input: /<input\b(?![^>]*type=['"](?:hidden|checkbox|radio|file|submit|reset|button|image|range|color)['"])/g,
+  Card: /<div\s[^>]*(?:border|rounded|shadow)/g,
 };
 
 export interface ComponentReuseResult {

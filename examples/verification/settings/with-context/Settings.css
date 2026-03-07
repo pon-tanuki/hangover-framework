@@ -1,0 +1,186 @@
+/* コンテキストあり: design-system.context.md を参照した出力
+   - ブランドフォント（Garamond）を使用
+   - デザイントークンで色・スペーシング・タイポグラフィを指定
+   - 生の値は一切使用しない
+*/
+
+.settings-container {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: var(--space-600) var(--space-400);
+  font-family: var(--font-family-base);
+  background-color: var(--color-bg-secondary);
+  min-height: 100vh;
+}
+
+.settings-page-title {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-500);
+}
+
+.settings-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-400);
+}
+
+/* セクション見出し */
+.settings-section-title {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-100);
+}
+
+.settings-section-desc {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-400);
+}
+
+/* フィールドグループ */
+.settings-fields {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-300);
+}
+
+/* テキストエリア */
+.settings-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-150);
+}
+
+.settings-label {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+}
+
+.settings-textarea {
+  width: 100%;
+  padding: var(--space-200) var(--space-300);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-base);
+  color: var(--color-text-primary);
+  background-color: var(--color-bg-primary);
+  resize: vertical;
+  box-sizing: border-box;
+  box-shadow: var(--shadow-sm);
+  transition: border-color 0.15s ease;
+}
+
+.settings-textarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+.settings-textarea::placeholder {
+  color: var(--color-text-secondary);
+}
+
+.settings-field-hint {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+/* トグルスイッチ */
+.settings-toggles {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-300);
+}
+
+.settings-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-400);
+  padding: var(--space-300) 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.settings-toggle-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.settings-toggle-info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-50);
+}
+
+.settings-toggle-label {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+}
+
+.settings-toggle-desc {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+/* トグルボタン本体 */
+.settings-toggle {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  width: 44px;
+  height: 24px;
+  border-radius: var(--radius-full, 9999px);
+  border: none;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background-color 0.2s ease;
+  padding: 0;
+}
+
+.settings-toggle--on {
+  background-color: var(--color-primary);
+}
+
+.settings-toggle--off {
+  background-color: var(--color-border-strong);
+}
+
+.settings-toggle:focus-visible {
+  outline: 3px solid var(--color-primary);
+  outline-offset: var(--space-50);
+}
+
+.settings-toggle-thumb {
+  position: absolute;
+  top: var(--space-50);
+  left: var(--space-50);
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: var(--color-bg-primary);
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.2s ease;
+}
+
+.settings-toggle--on .settings-toggle-thumb {
+  transform: translateX(20px);
+}
+
+.settings-toggle--off .settings-toggle-thumb {
+  transform: translateX(0);
+}
+
+/* アクションボタン */
+.settings-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-300);
+  padding-top: var(--space-150);
+}

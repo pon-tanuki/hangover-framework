@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="アカウント設定 - プロフィール・通知・パスワードの管理" />
+    <title>アカウント設定 | AdminPanel</title>
+    <link rel="stylesheet" href="Settings.css" />
+  </head>
+  <body>
+    <!-- スキップナビゲーション（アクセシビリティ） -->
+    <a href="#main-content" class="skip-link">メインコンテンツへスキップ</a>
+
+    <div class="settings-page">
+      <!-- ヘッダー -->
+      <header class="settings-page__header" role="banner">
+        <div class="settings-page__header-inner">
+          <div class="settings-page__logo" aria-label="AdminPanel ホーム">
+            <span class="settings-page__logo-icon" aria-hidden="true">◈</span>
+            <span class="settings-page__logo-text">AdminPanel</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- メインコンテンツ -->
+      <main id="main-content" class="settings-page__main" tabindex="-1">
+        <div class="settings-page__container">
+
+          <!-- ページ見出し -->
+          <div class="settings-page__heading-block">
+            <h1 class="settings-page__title">アカウント設定</h1>
+            <p class="settings-page__subtitle">
+              プロフィール・通知・セキュリティの設定を管理します。
+            </p>
+          </div>
+
+          <!-- 保存完了メッセージ（非表示状態） -->
+          <div
+            class="alert alert--success"
+            role="status"
+            aria-live="polite"
+            aria-atomic="true"
+            id="saved-message"
+            hidden
+          >
+            <span aria-hidden="true">✓</span> 設定を保存しました。
+          </div>
+
+          <!-- 設定フォーム -->
+          <form
+            class="settings-form"
+            id="settings-form"
+            novalidate
+            aria-label="アカウント設定フォーム"
+          >
+
+            <!-- =========================================
+                 プロフィールセクション
+                 ========================================= -->
+            <section class="settings-section" aria-labelledby="profile-heading">
+              <div class="settings-section__header">
+                <h2 id="profile-heading" class="settings-section__title">プロフィール</h2>
+                <p class="settings-section__description">
+                  公開プロフィール情報を設定します。
+                </p>
+              </div>
+
+              <div class="settings-section__body">
+                <!-- 表示名 -->
+                <div class="form-field">
+                  <label for="displayName" class="form-field__label">
+                    表示名
+                    <span class="form-field__required" aria-hidden="true"> *</span>
+                  </label>
+                  <input
+                    id="displayName"
+                    name="displayName"
+                    type="text"
+                    class="form-input"
+                    value="山田 太郎"
+                    required
+                    aria-required="true"
+                    autocomplete="name"
+                    placeholder="例: 山田 太郎"
+                  />
+                  <p id="displayName-error" class="form-field__error" hidden role="alert"></p>
+                </div>
+
+                <!-- メールアドレス -->
+                <div class="form-field">
+                  <label for="email" class="form-field__label">
+                    メールアドレス
+                    <span class="form-field__required" aria-hidden="true"> *</span>
+                  </label>
+                  <input
+                    id="email"
+                    name="email"
+                    type="email"
+                    class="form-input"
+                    value="taro.yamada@example.com"
+                    required
+                    aria-required="true"
+                    autocomplete="email"
+                    placeholder="例: taro@example.com"
+                  />
+                  <p id="email-error" class="form-field__error" hidden role="alert"></p>
+                </div>
+
+                <!-- 自己紹介 -->
+                <div class="form-field">
+                  <label for="bio" class="form-field__label">自己紹介</label>
+                  <textarea
+                    id="bio"
+                    name="bio"
+                    class="form-textarea"
+                    rows="4"
+                    maxlength="400"
+                    placeholder="自己紹介を入力してください（任意）"
+                    aria-describedby="bio-hint"
+                  ></textarea>
+                  <p id="bio-hint" class="form-field__hint">
+                    最大400文字。現在 <span id="bio-count">0</span> 文字。
+                  </p>
+                </div>
+              </div>
+            </section>
+
+            <!-- =========================================
+                 通知設定セクション
+                 ========================================= -->
+            <section class="settings-section" aria-labelledby="notification-heading">
+              <div class="settings-section__header">
+                <h2 id="notification-heading" class="settings-section__title">通知設定</h2>
+                <p class="settings-section__description">
+                  受け取る通知の種類を選択します。
+                </p>
+              </div>
+
+              <div class="settings-section__body">
+                <div class="toggle-list" role="group" aria-labelledby="notification-heading">
+
+                  <!-- メール通知 -->
+                  <div class="toggle-row">
+                    <div class="toggle-row__info">
+                      <label for="emailNotification" class="toggle-row__label">
+                        メール通知
+                      </label>
+                      <p id="emailNotification-desc" class="toggle-row__description">
+                        重要なお知らせやアクティビティをメールでお知らせします。
+                      </p>
+                    </div>
+                    <button
+                      id="emailNotification"
+                      type="button"
+                      role="switch"
+                      aria-checked="true"
+                      aria-describedby="emailNotification-desc"
+                      class="toggle-switch toggle-switch--on"
+                    >
+                      <span class="toggle-switch__thumb" aria-hidden="true"></span>
+                      <span class="visually-hidden">オン</span>
+                    </button>
+                  </div>
+
+                  <!-- プッシュ通知 -->
+                  <div class="toggle-row">
+                    <div class="toggle-row__info">
+                      <label for="pushNotification" class="toggle-row__label">
+                        プッシュ通知
+                      </label>
+                      <p id="pushNotification-desc" class="toggle-row__description">
+                        ブラウザのプッシュ通知でリアルタイムにお知らせします。
+                      </p>
+                    </div>
+                    <button
+                      id="pushNotification"
+                      type="button"
+                      role="switch"
+                      aria-checked="false"
+                      aria-describedby="pushNotification-desc"
+                      class="toggle-switch"
+                    >
+                      <span class="toggle-switch__thumb" aria-hidden="true"></span>
+                      <span class="visually-hidden">オフ</span>
+                    </button>
+                  </div>
+
+                </div>
+              </div>
+            </section>
+
+            <!-- =========================================
+                 パスワード変更セクション
+                 ========================================= -->
+            <section class="settings-section" aria-labelledby="password-heading">
+              <div class="settings-section__header">
+                <h2 id="password-heading" class="settings-section__title">パスワード変更</h2>
+                <p class="settings-section__description">
+                  変更する場合のみ入力してください。8文字以上を推奨します。
+                </p>
+              </div>
+
+              <div class="settings-section__body">
+                <!-- 現在のパスワード -->
+                <div class="form-field">
+                  <label for="currentPassword" class="form-field__label">
+                    現在のパスワード
+                  </label>
+                  <input
+                    id="currentPassword"
+                    name="currentPassword"
+                    type="password"
+                    class="form-input"
+                    autocomplete="current-password"
+                    placeholder="現在のパスワードを入力"
+                  />
+                  <p id="currentPassword-error" class="form-field__error" hidden role="alert"></p>
+                </div>
+
+                <!-- 新しいパスワード -->
+                <div class="form-field">
+                  <label for="newPassword" class="form-field__label">
+                    新しいパスワード
+                  </label>
+                  <input
+                    id="newPassword"
+                    name="newPassword"
+                    type="password"
+                    class="form-input"
+                    autocomplete="new-password"
+                    placeholder="新しいパスワードを入力（8文字以上）"
+                  />
+                  <p id="newPassword-error" class="form-field__error" hidden role="alert"></p>
+                </div>
+
+                <!-- 確認用パスワード -->
+                <div class="form-field">
+                  <label for="confirmPassword" class="form-field__label">
+                    新しいパスワード（確認）
+                  </label>
+                  <input
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    type="password"
+                    class="form-input"
+                    autocomplete="new-password"
+                    placeholder="新しいパスワードを再入力"
+                  />
+                  <p id="confirmPassword-error" class="form-field__error" hidden role="alert"></p>
+                </div>
+              </div>
+            </section>
+
+            <!-- =========================================
+                 アクションボタン
+                 ========================================= -->
+            <div class="settings-actions">
+              <button type="button" class="btn btn--secondary" id="cancel-btn">
+                キャンセル
+              </button>
+              <button type="submit" class="btn btn--primary">
+                設定を保存
+              </button>
+            </div>
+
+          </form>
+        </div>
+      </main>
+    </div>
+
+    <script>
+      // --- トグルスイッチ ---
+      document.querySelectorAll(".toggle-switch").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          var isOn = this.getAttribute("aria-checked") === "true";
+          var next = !isOn;
+          this.setAttribute("aria-checked", String(next));
+          this.classList.toggle("toggle-switch--on", next);
+          var label = this.querySelector(".visually-hidden");
+          if (label) label.textContent = next ? "オン" : "オフ";
+        });
+      });
+
+      // --- 自己紹介 文字数カウント ---
+      var bioTextarea = document.getElementById("bio");
+      var bioCount = document.getElementById("bio-count");
+      bioTextarea.addEventListener("input", function () {
+        bioCount.textContent = String(this.value.length);
+      });
+
+      // --- バリデーションヘルパー ---
+      function showError(id, message) {
+        var el = document.getElementById(id + "-error");
+        var input = document.getElementById(id);
+        if (!el || !input) return;
+        if (message) {
+          el.textContent = message;
+          el.hidden = false;
+          input.classList.add("form-input--error");
+          input.setAttribute("aria-invalid", "true");
+          input.setAttribute("aria-describedby", id + "-error");
+        } else {
+          el.textContent = "";
+          el.hidden = true;
+          input.classList.remove("form-input--error");
+          input.removeAttribute("aria-invalid");
+          input.removeAttribute("aria-describedby");
+        }
+      }
+
+      function clearErrors() {
+        ["displayName", "email", "currentPassword", "newPassword", "confirmPassword"].forEach(
+          function (id) { showError(id, ""); }
+        );
+      }
+
+      function validate() {
+        var errors = {};
+        var displayName = document.getElementById("displayName").value.trim();
+        var email = document.getElementById("email").value.trim();
+        var currentPassword = document.getElementById("currentPassword").value;
+        var newPassword = document.getElementById("newPassword").value;
+        var confirmPassword = document.getElementById("confirmPassword").value;
+
+        if (!displayName) {
+          errors.displayName = "表示名を入力してください。";
+        }
+
+        if (!email) {
+          errors.email = "メールアドレスを入力してください。";
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+          errors.email = "有効なメールアドレスを入力してください。";
+        }
+
+        var hasPasswordInput = currentPassword || newPassword || confirmPassword;
+        if (hasPasswordInput) {
+          if (!currentPassword) {
+            errors.currentPassword = "現在のパスワードを入力してください。";
+          }
+          if (!newPassword) {
+            errors.newPassword = "新しいパスワードを入力してください。";
+          } else if (newPassword.length < 8) {
+            errors.newPassword = "パスワードは8文字以上で入力してください。";
+          }
+          if (!confirmPassword) {
+            errors.confirmPassword = "確認用パスワードを入力してください。";
+          } else if (newPassword !== confirmPassword) {
+            errors.confirmPassword = "新しいパスワードと一致しません。";
+          }
+        }
+
+        return errors;
+      }
+
+      // --- フォーム送信 ---
+      document.getElementById("settings-form").addEventListener("submit", function (e) {
+        e.preventDefault();
+        clearErrors();
+
+        var errors = validate();
+        var errorKeys = Object.keys(errors);
+
+        if (errorKeys.length > 0) {
+          errorKeys.forEach(function (key) { showError(key, errors[key]); });
+          // 最初のエラーにフォーカス
+          document.getElementById(errorKeys[0]).focus();
+          return;
+        }
+
+        // 保存完了メッセージ表示
+        var msg = document.getElementById("saved-message");
+        msg.hidden = false;
+        ["currentPassword", "newPassword", "confirmPassword"].forEach(function (id) {
+          document.getElementById(id).value = "";
+        });
+        setTimeout(function () { msg.hidden = true; }, 4000);
+      });
+
+      // --- キャンセル ---
+      document.getElementById("cancel-btn").addEventListener("click", function () {
+        document.getElementById("displayName").value = "山田 太郎";
+        document.getElementById("email").value = "taro.yamada@example.com";
+        document.getElementById("bio").value = "";
+        bioCount.textContent = "0";
+        ["currentPassword", "newPassword", "confirmPassword"].forEach(function (id) {
+          document.getElementById(id).value = "";
+        });
+        clearErrors();
+        document.getElementById("saved-message").hidden = true;
+
+        // トグルを初期状態に戻す
+        var emailToggle = document.getElementById("emailNotification");
+        emailToggle.setAttribute("aria-checked", "true");
+        emailToggle.classList.add("toggle-switch--on");
+        emailToggle.querySelector(".visually-hidden").textContent = "オン";
+
+        var pushToggle = document.getElementById("pushNotification");
+        pushToggle.setAttribute("aria-checked", "false");
+        pushToggle.classList.remove("toggle-switch--on");
+        pushToggle.querySelector(".visually-hidden").textContent = "オフ";
+      });
+    </script>
+  </body>
+</html>

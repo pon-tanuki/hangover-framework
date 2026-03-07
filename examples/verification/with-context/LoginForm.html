@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>Login Form - With Context</title>
+  <style>
+    :root {
+      --color-primary: #2563EB;
+      --color-primary-hover: #1D4ED8;
+      --color-text-primary: #111827;
+      --color-text-secondary: #6B7280;
+      --color-bg-primary: #FFFFFF;
+      --color-bg-tertiary: #F3F4F6;
+      --color-border: #E5E7EB;
+      --color-border-strong: #D1D5DB;
+      --color-error: #DC2626;
+      --space-150: 8px;
+      --space-200: 12px;
+      --space-300: 16px;
+      --space-400: 24px;
+      --space-500: 32px;
+      --space-600: 48px;
+      --font-family-base: 'Garamond', 'Georgia', serif;
+      --font-size-sm: 14px;
+      --font-size-base: 16px;
+      --font-size-2xl: 24px;
+      --font-weight-medium: 500;
+      --font-weight-bold: 700;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+    }
+    body { font-family: var(--font-family-base); background: var(--color-bg-tertiary); }
+    .login-container { display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+    .login-card { background: var(--color-bg-primary); border-radius: var(--radius-lg); padding: var(--space-600); width: 400px; box-shadow: var(--shadow-lg); }
+    h1 { font-size: var(--font-size-2xl); font-weight: var(--font-weight-bold); color: var(--color-text-primary); text-align: center; margin-bottom: var(--space-150); }
+    p { font-size: var(--font-size-sm); color: var(--color-text-secondary); text-align: center; margin-bottom: var(--space-500); }
+    .form-group { margin-bottom: var(--space-400); }
+    label { display: block; font-size: var(--font-size-sm); font-weight: var(--font-weight-medium); color: var(--color-text-primary); margin-bottom: var(--space-150); }
+    input { width: 100%; padding: var(--space-200) var(--space-300); border: 1px solid var(--color-border-strong); border-radius: var(--radius-md); font-size: var(--font-size-base); box-sizing: border-box; }
+    button { width: 100%; padding: var(--space-300); background: var(--color-primary); color: var(--color-bg-primary); border: none; border-radius: var(--radius-md); font-size: var(--font-size-base); font-weight: var(--font-weight-bold); cursor: pointer; }
+    .forgot { text-align: center; margin-top: var(--space-300); }
+    .forgot a { color: var(--color-primary); font-size: var(--font-size-sm); }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <div class="login-card">
+      <h1>ログイン</h1>
+      <p>アカウントにサインインしてください</p>
+      <form>
+        <div class="form-group">
+          <label for="email">メールアドレス</label>
+          <input type="email" id="email" placeholder="example@example.com" aria-required="true" autocomplete="email">
+        </div>
+        <div class="form-group">
+          <label for="password">パスワード</label>
+          <input type="password" id="password" placeholder="8文字以上" aria-required="true" autocomplete="current-password">
+        </div>
+        <button type="submit">ログイン</button>
+      </form>
+      <div class="forgot">
+        <a href="/forgot-password">パスワードを忘れた方はこちら</a>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
