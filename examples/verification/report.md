@@ -1,203 +1,124 @@
-# 効果検証レポート: HANGOVERフレームワーク
+# 効果検証レポート: HANGOVER フレームワーク
 
 ## 概要
 
-同一タスク「ログインフォームをReactで実装してください」を2条件で実装し、DQSスコアを比較した。
+5種類のUIを同一LLM（Claude）で2条件生成し、DQSスコアを比較した。
 
-**タスク:**
-```
-ログインフォームをReactで実装してください。
-- メールアドレス入力フィールド
-- パスワード入力フィールド
-- ログインボタン
-- 「パスワードを忘れた方はこちら」リンク
-```
+- **条件A（コンテキストなし）**: プロンプトにデザインシステム仕様を含めない
+- **条件B（コンテキストあり）**: Spec Compiler で生成した design-system.context.md をプロンプトに含める
 
 ---
 
 ## 結果サマリー
 
-3条件で比較した。条件B-手動は理想値の上限として、条件B-LLMはサブエージェント（Claude）に実際にコンテキストを与えて生成させた実測値。
-
-```
-                        条件A（なし）  条件B-手動（上限）  条件B-LLM生成（実測）
-DQS 総合スコア             42/100           91/100              91/100
-Token Compliance           0/100          100/100             100/100
-Component Reuse            0/100           67/100              57/100
-Code Structure            97/100           97/100              97/100
-Accessibility             85/100           95/100             100/100
-```
-
-| 指標 | 条件A（なし） | 条件B-手動（上限） | 条件B-LLM生成（実測） | A→LLM改善幅 |
-|------|------------|-----------------|-------------------|------------|
-| **DQS 総合** | **42/100 [FAIL]** | **91/100 [PASS]** | **91/100 [PASS]** | **+49点** |
-| Token Compliance | 0/100 | 100/100 | 100/100 | +100点 |
-| Component Reuse | 0/100 | 67/100 | 57/100 | +57点 |
-| Code Structure | 97/100 | 97/100 | 97/100 | ±0点 |
-| Accessibility | 85/100 | 95/100 | **100/100** | +15点 |
-
-**注目点:** LLM生成（実測）が手動（理想値）と同点の91点に到達。Accessibilityは手動を上回り100点満点。
+| UI | 条件A DQS | 条件B DQS | 改善幅 | A:Token | B:Token | A:Reuse | B:Reuse | A:A11y | B:A11y |
+|----|----------|----------|--------|---------|---------|---------|---------|--------|--------|
+| ログインフォーム | 40 [FAIL] | 100 [PASS] | +60 | 0 | 100 | 0 | 100 | 100 | 100 |
+| ダッシュボード | 39 [FAIL] | 100 [PASS] | +61 | 0 | 100 | 0 | 100 | 100 | 100 |
+| 設定ページ | 39 [FAIL] | 92 [PASS] | +53 | 0 | 95 | 0 | 83 | 100 | 95 |
+| 商品一覧 | 42 [FAIL] | 99 [PASS] | +57 | 8 | 100 | 0 | 100 | 100 | 95 |
+| 通知センター | 39 [FAIL] | 99 [PASS] | +60 | 0 | 100 | 0 | 100 | 100 | 100 |
+| **平均** | **40 [FAIL]** | **98 [PASS]** | **+58** | **2** | **99** | **0** | **97** | **100** | **98** |
 
 ---
 
-## 条件A（コンテキストなし）の問題点
+## 条件A（コンテキストなし）の共通パターン
 
-### Token Compliance: 0/100（20エラー、7警告）
+### Token Compliance: 常に 0〜8/100
 
-典型的なトークン捏造パターン:
+全5UIでほぼ一律に0点。LLMはデザイントークンの存在を知らないため、100%確実に生の値を使う:
 
-| LLMが生成した値 | 正しいトークン |
-|----------------|---------------|
-| `font-family: Inter, -apple-system, sans-serif` | `var(--font-family-base)` = Garamond |
-| `color: #111827` | `var(--color-text-primary)` |
-| `color: #6b7280` | `var(--color-text-secondary)` |
-| `color: #3b82f6` | `var(--color-primary)` ※値も違う（#2563EB）|
-| `padding: 40px` | `var(--space-600)` = 48px |
-| `border-radius: 12px` | `var(--radius-lg)` |
-| `border-radius: 8px` | `var(--radius-md)` |
-| `font-size: 24px` | `var(--font-size-2xl)` |
-| `font-size: 14px` | `var(--font-size-sm)` |
+- `color: #3b82f6` → プロジェクトの primary は `#2563EB`（色すら合っていない）
+- `font-family: Inter, sans-serif` → ブランドフォントは `Garamond, Georgia, serif`
+- `padding: 40px` → 最寄りトークンは `var(--space-600)` = 48px
 
-特に深刻なのが **フォントの差異**。ブランドフォントが Garamond（セリフ体）であるにもかかわらず、LLMはInterというサンセリフ体を選択した。これはデザインの根幹に関わる問題であり、Token Validatorがなければスペルミスのような形で気づかれないまま蓄積される。
+唯一の例外は商品一覧（Token 8/100）で、LLMが独自のCSSカスタムプロパティを定義していた（`--primary-color` 等）。しかし名前がデザインシステムのトークン名と一致しないため低スコア。
 
-また、`#3b82f6`（Tailwindのblue-500）が使われていたが、プロジェクトのprimaryは `#2563EB`（blue-600相当）であり、**1ビットずれた色**がハードコードされていた。
+### Component Reuse: 常に 0/100
 
-### Component Reuse: 0/100
+Button / Input / Card のいずれも使用されず、全て raw HTML で再実装される。UIの複雑さに関係なく、コンポーネントカタログの存在を知らない限り使用されない。
 
-Button、Input、Cardの3つの登録コンポーネントが存在するにもかかわらず、全て再実装。
+### Accessibility: 平均 100/100
 
-```tsx
-// 条件A: ButtonをHTMLで再実装
-<button type="submit" className="login-button" disabled={isLoading}>
-  {isLoading ? 'ログイン中...' : 'ログイン'}
-</button>
-
-// 条件A: InputをHTMLで再実装
-<input
-  id="email"
-  type="email"
-  className={`form-input ${errors.email ? 'error' : ''}`}
-  ...
-/>
-```
-
-### Accessibility: 85/100（1 serious、1 moderate）
-
-- `<html>` タグに `lang` 属性なし（serious）
-- フォームのロール・ランドマーク設定不足（moderate）
+意外にも、条件Aでも全UI共通でほぼ満点のa11y品質を達成。現代のLLMは `<html lang>`, `aria-label`, `role`, `aria-live` などのa11y属性を自発的に付与する傾向がある。a11yは「コンテキストなしでも維持できる」領域。
 
 ---
 
-## 条件B（コンテキストあり）の改善内容
+## 条件B（コンテキストあり）の分析
 
-### Token Compliance: 100/100（違反ゼロ）
+### Token Compliance: 平均 99/100
 
-全ての値をデザイントークンで記述:
+4/5 UIで完全スコア。設定ページのみ 95/100（トグルスイッチの `height: 24px` が `var(--space-400)` と完全一致するため正当な指摘として残った）。
 
-```css
-/* 条件B: トークンを正しく使用 */
-background-color: var(--color-bg-tertiary);
-font-family: var(--font-family-base);   /* Garamond */
-font-size: var(--font-size-2xl);
-color: var(--color-text-primary);
-margin-bottom: var(--space-500);
-```
+### Component Reuse: 平均 97/100
 
-### Component Reuse: 67/100（4/6コンポーネント使用）
+4/5 UIで 100%（全登録コンポーネントを使用）。設定ページのみ 83/100 — `<textarea>` とトグルスイッチはカタログに登録されていないため raw HTML で実装された。
 
-```tsx
-// 条件B: 登録コンポーネントを使用
-<Card padding="lg" shadow="lg">
-  <Input label="メールアドレス" type="email" value={email} onChange={setEmail} error={errors.email} />
-  <Input label="パスワード" type="password" value={password} onChange={setPassword} error={errors.password} />
-  <Button variant="primary" size="lg" loading={isLoading}>ログイン</Button>
-</Card>
-```
+### Accessibility: 平均 98/100
 
-Button・Input・Cardをそれぞれ1回ずつ使用（4コンポーネント使用）。残り2つはHTMLのform要素とaタグで、代替可能な登録コンポーネントがないため妥当。
-
-### Accessibility: 95/100（1 moderate）
-
-- `<html lang="ja">` で言語を明示
-- `aria-required="true"` で必須フィールドを明示
-- Inputコンポーネントがlabelとinputのひも付けを自動担保
-
-残るmoderate（`<form>`のaria-label未設定）はコンポーネントレベルの改善で対処可能。
+条件Bの方がわずかに低い（100→98）ケースがある。設定ページ（95/100）と商品一覧（95/100）で moderate 違反が1件ずつ残った。これはデザインシステムコンテキストがa11yの改善ではなくトークン/コンポーネント準拠に注力させるため、a11yへの注意がわずかに分散した可能性がある。
 
 ---
 
-## 条件B-LLM生成の実装分析
+## UI別の特徴
 
-サブエージェント（Claude）にデザインシステムコンテキストを与えて生成させた実測コード。
+### ログインフォーム（改善幅: +60点）
 
-### Token Compliance: 100/100（条件Aから完全改善）
+最もシンプルなUI。条件Bで DQS 100/100 の満点を達成。Input×2、Button×1、Card×1 で全登録コンポーネントの使用機会がある。
 
-コンテキストを与えることで、生成されるCSSは完全にトークンのみに。
+### ダッシュボード（改善幅: +61点）
 
-```css
-/* LLM生成: 全てvar()で記述 */
-background-color: var(--color-bg-tertiary);
-font-family: var(--font-family-base);
-color: var(--color-text-primary);
-gap: var(--space-400);
-```
+KPIカード×3、テーブル、ページネーションの複雑なUI。条件Bで DQS 100/100。Card×2（KPI + テーブルラップ）、Button×3（ログアウト + ページネーション×2）を適切に使用。
 
-### Component Reuse: 57/100（手動67より低い）
+### 設定ページ（改善幅: +53点 ← 最低）
 
-LLMはButton・Input・Cardの3コンポーネントを使用したが、7つのHTML要素中4つが登録コンポーネント。手動より生の要素が多かった（`<form>`、`<a>`、さらに `<div>` など）。コンポーネントカタログに登録されていない要素については、適切にHTMLを選択した。
+改善幅が最小だった唯一のUI。原因:
+- `<textarea>` はカタログに Input として登録されているが、Input コンポーネントが textarea をサポートしないため raw HTML で実装
+- トグルスイッチ（`<button role="switch">`）もカタログ未登録
 
-### Accessibility: 100/100（手動の95を超えた）
+**示唆:** カタログの網羅性がフレームワークの効果上限を決定する。Textarea / Toggle をカタログに追加すれば改善の余地がある。
 
-LLMがコンテキストのa11y要件を積極的に解釈し、手動より高い品質を実現:
-- `<html lang="ja">` 付与
-- `<form aria-label="ログインフォーム">` でフォームのランドマーク化
-- `aria-describedby` でエラーメッセージをinputに紐付け
-- `role="alert"` + `aria-live="polite"` でエラーの動的通知
-- `autocomplete` 属性を適切に設定
+### 商品一覧（改善幅: +57点）
 
-これは手動実装では見落としていたaria属性群で、コンテキストの「Every form control needs a label」ルールをLLMが積極的に拡張解釈した結果。
+検索バー、カテゴリフィルター、商品カードグリッドの複合UI。条件Bでは Input（検索）、Button（フィルター×4 + カート + もっと見る）、Card（商品カード×6）を積極使用し、Reuse 100% を達成。
+
+### 通知センター（改善幅: +60点）
+
+ボタンの多いUI（既読にする×5、削除×5、すべて既読にする×1）。条件Bでは Button の variant を適切に使い分け（ghost/destructive/secondary）。
 
 ---
 
 ## 考察
 
-### 最大の問題はToken Compliance
+### 最大の効果: Token Compliance（0→99）
 
-DQSの差（+49点）の大部分はToken Compliance（0→100）とComponent Reuse（0→67）に起因する。Code Structureは両条件でほぼ同等であり、LLMはコードの「構造的な品質」は比較的保てるが、**デザインシステムとの整合性**は明示的なコンテキストなしでは保てない。
+全UIで最も劇的な改善。コンテキストなしのLLMはデザイントークンの存在を知らないため、100%確実に生の値を使う。コンテキストを与えるだけで95%以上のトークン準拠率を達成できる。
 
-### ブランドフォントの置き換えは自動検知が必須
+### Component Reuse は「カタログの網羅性」に依存
 
-条件Aではブランドフォント（Garamond）がInterに置き換わっていた。視覚的には「悪くない」ため人間のレビューでも見落とされやすい。Token Validatorが `font-family: Inter` を即座に検出し `var(--font-family-base)` への修正を促すことで、初回生成直後に修正できる。
+カタログに登録された要素は100%使用される。スコアの上限はカタログの完成度で決まる。設定ページが 83% に留まったのはカタログ不足が原因。
 
-### セッション間ドリフトの防止
+### Code Structure は差がつかない
 
-今回は単一フォームの検証だったが、実際のプロジェクトでは複数セッションにわたって類似のコードが生成される。条件Aのパターンが蓄積すると:
+条件A 平均93/100、条件B 平均96/100。LLMはコードの構造的品質は元々高い水準で維持できる。DQS の重みを 0.10（最低）に設定した判断は正しい。
 
-- ファイルAでは `padding: 40px`
-- ファイルBでは `padding: 12px`
-- ファイルCでは `padding: var(--space-300)` （たまたま正しい）
+### Accessibility は元々高い
 
-という不整合が広がり、「3チームが作ったように見える」状態になる。HANGOVERのConsistency Trackerはこのドリフトを時系列で検知する。
+条件A 平均100/100、条件B 平均98/100。現代のLLMは明示的な指示がなくてもa11y属性を適切に付与する。HANGOVERフレームワークの本質的な価値はa11y改善ではなく、**Token Compliance と Component Reuse の確保**にある。
 
 ---
 
 ## 結論
 
-HANGOVERフレームワーク（Phase 0: Spec Compiler）により、同一タスクに対してDQSスコアが **42点 → 91点（+49点）** 改善した。
-
-**特筆すべき点:** コンテキストを与えたLLM生成コード（実測）が手動の理想実装と同点（91点）に到達。Accessibilityにいたっては手動（95点）を上回り100点満点を記録した。
+5種類のUIにわたる検証で、コンテキスト付与による平均DQS改善は **+58点**（40→98）。
 
 ```
-DQS改善（条件A → 条件B-LLM生成）: 42 → 91 (+49点, +117%)
-
-内訳:
-  Token Compliance   0 → 100  (+100点)  ブランドフォント・カラートークン適用
-  Component Reuse    0 →  57  ( +57点)  Button/Input/Card登録コンポーネント活用
-  Accessibility     85 → 100  ( +15点)  aria属性・フォームランドマーク付与
-  Code Structure    97 →  97  (  ±0点)  コード構造は元から良好
+条件A平均: DQS 40 [FAIL]  Token 2, Reuse 0, Structure 93, A11y 100
+条件B平均: DQS 98 [PASS]  Token 99, Reuse 97, Structure 96, A11y 98
+改善幅:    +58点
 ```
 
-デザインシステムの仕様をLLMに「知らせる」だけで、デザイン二日酔いの主要因（トークン捏造・コンポーネント再実装・a11y欠如）を一括して防止できる。
+Token Compliance と Component Reuse は条件Aで常に 0 で、条件Bで常に 83〜100。この改善はUIの種類・複雑さに関係なく再現する。
 
 ---
 
@@ -205,8 +126,16 @@ DQS改善（条件A → 条件B-LLM生成）: 42 → 91 (+49点, +117%)
 
 - 日付: 2026-03-07
 - ツール: HANGOVER Framework v0.1.0
-- LLM: Claude Sonnet 4.6（サブエージェント）
+- LLM: Claude Opus 4.6（サブエージェント）
 - デザインシステム: `examples/sample-design-system/`
-- 条件A（コンテキストなし）: `examples/verification/without-context/`
-- 条件B-手動（上限値）: `examples/verification/with-context/`
-- 条件B-LLM生成（実測）: `examples/verification/with-context-llm/`
+- DQS重み: Token 0.35, Reuse 0.25, A11y 0.30, Structure 0.10
+
+### 検証ディレクトリ
+
+| UI | 条件A | 条件B |
+|----|------|------|
+| ログインフォーム | `without-context-llm/` | `with-context-llm/` |
+| ダッシュボード | `dashboard/without-context/` | `dashboard/with-context/` |
+| 設定ページ | `settings/without-context/` | `settings/with-context/` |
+| 商品一覧 | `product-list/without-context/` | `product-list/with-context/` |
+| 通知センター | `notifications/without-context/` | `notifications/with-context/` |

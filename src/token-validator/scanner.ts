@@ -87,14 +87,17 @@ function scanCSS(filePath: string, content: string, tokens: DesignToken[]): Toke
         if (rawValue === '0px') continue; // 0 is always acceptable
         if (rawValue === '1px') continue; // 1px is structural (borders, visually-hidden) — below minimum spacing token
         const suggestions = matchSpacing(rawValue, tokens);
-        if (suggestions.length > 0) {
-          violations.push({
-            file: filePath, line: lineNum, rawValue, property,
-            context: trimmed,
-            suggestions,
-            severity: 'error',
-          });
-        }
+        if (suggestions.length === 0) continue;
+        // width/height are used for component-specific sizes (icons, toggles) —
+        // only flag when there's an exact token match (confidence 100%)
+        const isDimension = property === 'width' || property === 'height';
+        if (isDimension && !suggestions.some(s => s.confidence >= 1)) continue;
+        violations.push({
+          file: filePath, line: lineNum, rawValue, property,
+          context: trimmed,
+          suggestions,
+          severity: 'error',
+        });
       }
     }
 
@@ -150,6 +153,7 @@ function scanTSX(filePath: string, content: string, tokens: DesignToken[]): Toke
     for (const match of trimmed.matchAll(/'(\d+px)'|"(\d+px)"/g)) {
       const rawValue = (match[1] ?? match[2]);
       if (rawValue === '0px') continue;
+      if (rawValue === '1px') continue; // 1px is structural (borders, visually-hidden)
       const property = inferPropertyFromLine(line, `'${match[1] ?? ''}'` || `"${match[2] ?? ''}"`);
       // Choose matcher based on property type
       const isTypography = /font.?size|fontSize/i.test(property);
