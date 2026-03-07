@@ -1,0 +1,50 @@
+/* コンテキストあり: design-system.context.md を参照した出力
+   - ブランドフォント（Garamond）を使用
+   - デザイントークンで色・スペーシングを指定
+   - 生の値は一切使用しない
+*/
+
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: var(--color-bg-tertiary);
+  font-family: var(--font-family-base);
+}
+
+.login-title {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-150);
+  text-align: center;
+}
+
+.login-subtitle {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  text-align: center;
+  margin-bottom: var(--space-500);
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-400);
+}
+
+.forgot-password {
+  text-align: center;
+  margin-top: var(--space-300);
+}
+
+.forgot-password a {
+  font-size: var(--font-size-sm);
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+.forgot-password a:hover {
+  text-decoration: underline;
+}

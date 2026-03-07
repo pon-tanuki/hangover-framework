@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ユーザーダッシュボード</title>
+  <style>
+    /* =====================================================
+       Design Tokens (:root)
+       全てのスタイルはここで定義したカスタムプロパティを使用する。
+       生の色値・px値・フォント名の直書きは禁止。
+       ===================================================== */
+    :root {
+      /* Colors */
+      --color-primary: #2563EB;
+      --color-primary-hover: #1D4ED8;
+      --color-secondary: #7C3AED;
+      --color-success: #059669;
+      --color-warning: #D97706;
+      --color-error: #DC2626;
+      --color-text-primary: #111827;
+      --color-text-secondary: #6B7280;
+      --color-text-disabled: #9CA3AF;
+      --color-bg-primary: #FFFFFF;
+      --color-bg-secondary: #F9FAFB;
+      --color-bg-tertiary: #F3F4F6;
+      --color-border: #E5E7EB;
+      --color-border-strong: #D1D5DB;
+
+      /* Spacing (8pt grid) */
+      --space-50: 2px;
+      --space-100: 4px;
+      --space-150: 8px;
+      --space-200: 12px;
+      --space-300: 16px;
+      --space-400: 24px;
+      --space-500: 32px;
+      --space-600: 48px;
+      --space-700: 64px;
+      --space-800: 96px;
+
+      /* Typography */
+      --font-family-base: 'Garamond', 'Georgia', serif;
+      --font-family-mono: 'JetBrains Mono', 'Fira Code', monospace;
+      --font-size-xs: 12px;
+      --font-size-sm: 14px;
+      --font-size-base: 16px;
+      --font-size-lg: 18px;
+      --font-size-xl: 20px;
+      --font-size-2xl: 24px;
+      --font-size-3xl: 30px;
+      --font-size-4xl: 36px;
+      --font-weight-normal: 400;
+      --font-weight-medium: 500;
+      --font-weight-semibold: 600;
+      --font-weight-bold: 700;
+
+      /* Border Radius */
+      --radius-sm: 4px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --radius-xl: 16px;
+      --radius-full: 9999px;
+
+      /* Shadows */
+      --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07);
+      --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    /* =====================================================
+       Reset & Base
+       ===================================================== */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-family-base);
+      font-size: var(--font-size-base);
+      color: var(--color-text-primary);
+      background-color: var(--color-bg-secondary);
+      line-height: 1.5;
+    }
+
+    /* =====================================================
+       Layout
+       ===================================================== */
+    .dashboard {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    .dashboard-main {
+      flex: 1;
+      padding: var(--space-500);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-500);
+      max-width: 1200px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    /* =====================================================
+       Header
+       ===================================================== */
+    .dashboard-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--space-300) var(--space-500);
+      background-color: var(--color-bg-primary);
+      border-bottom: 1px solid var(--color-border);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .dashboard-header__logo {
+      font-size: var(--font-size-xl);
+      font-weight: var(--font-weight-bold);
+      color: var(--color-primary);
+      letter-spacing: 0.02em;
+    }
+
+    .dashboard-header__user {
+      display: flex;
+      align-items: center;
+      gap: var(--space-300);
+    }
+
+    .dashboard-header__username {
+      font-size: var(--font-size-sm);
+      font-weight: var(--font-weight-medium);
+      color: var(--color-text-secondary);
+    }
+
+    /* =====================================================
+       Button (design system component simulation)
+       ===================================================== */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-150);
+      border: none;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      font-family: var(--font-family-base);
+      font-weight: var(--font-weight-medium);
+      text-decoration: none;
+      transition: background-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .btn:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: var(--space-50);
+    }
+
+    .btn--sm {
+      font-size: var(--font-size-sm);
+      padding: var(--space-100) var(--space-200);
+    }
+
+    .btn--md {
+      font-size: var(--font-size-base);
+      padding: var(--space-150) var(--space-300);
+    }
+
+    .btn--primary {
+      background-color: var(--color-primary);
+      color: var(--color-bg-primary);
+    }
+
+    .btn--primary:hover:not(:disabled) {
+      background-color: var(--color-primary-hover);
+    }
+
+    .btn--secondary {
+      background-color: var(--color-bg-primary);
+      color: var(--color-text-primary);
+      border: 1px solid var(--color-border-strong);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .btn--secondary:hover:not(:disabled) {
+      background-color: var(--color-bg-tertiary);
+    }
+
+    .btn--ghost {
+      background-color: transparent;
+      color: var(--color-text-secondary);
+    }
+
+    .btn--ghost:hover:not(:disabled) {
+      background-color: var(--color-bg-tertiary);
+      color: var(--color-text-primary);
+    }
+
+    .btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    /* =====================================================
+       Card (design system component simulation)
+       ===================================================== */
+    .card {
+      background-color: var(--color-bg-primary);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+    }
+
+    .card--shadow-sm { box-shadow: var(--shadow-sm); }
+    .card--shadow-md { box-shadow: var(--shadow-md); }
+    .card--shadow-lg { box-shadow: var(--shadow-lg); }
+
+    .card--padding-sm { padding: var(--space-200); }
+    .card--padding-md { padding: var(--space-300); }
+    .card--padding-lg { padding: var(--space-400); }
+
+    /* =====================================================
+       Section title
+       ===================================================== */
+    .dashboard-section-title {
+      font-size: var(--font-size-lg);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-text-primary);
+      margin-bottom: var(--space-300);
+    }
+
+    /* =====================================================
+       KPI Cards
+       ===================================================== */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-400);
+    }
+
+    @media (max-width: 768px) {
+      .kpi-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .kpi-card__title {
+      font-size: var(--font-size-sm);
+      font-weight: var(--font-weight-medium);
+      color: var(--color-text-secondary);
+      margin-bottom: var(--space-150);
+    }
+
+    .kpi-card__value {
+      font-size: var(--font-size-3xl);
+      font-weight: var(--font-weight-bold);
+      color: var(--color-text-primary);
+      margin-bottom: var(--space-100);
+      line-height: 1.2;
+    }
+
+    .kpi-card__trend {
+      font-size: var(--font-size-sm);
+      font-weight: var(--font-weight-medium);
+    }
+
+    .kpi-card__trend--positive { color: var(--color-success); }
+    .kpi-card__trend--negative { color: var(--color-error); }
+
+    /* =====================================================
+       Orders Table
+       ===================================================== */
+    .orders-section {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .table-wrapper {
+      overflow-x: auto;
+    }
+
+    .orders-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: var(--font-size-sm);
+    }
+
+    .orders-table th {
+      text-align: left;
+      padding: var(--space-200) var(--space-300);
+      font-size: var(--font-size-xs);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid var(--color-border);
+      background-color: var(--color-bg-tertiary);
+    }
+
+    .orders-table td {
+      padding: var(--space-200) var(--space-300);
+      color: var(--color-text-primary);
+      border-bottom: 1px solid var(--color-border);
+      vertical-align: middle;
+    }
+
+    .orders-table tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    .orders-table tbody tr:hover td {
+      background-color: var(--color-bg-secondary);
+    }
+
+    .orders-table__id {
+      font-family: var(--font-family-mono);
+      font-size: var(--font-size-xs);
+      color: var(--color-text-secondary);
+    }
+
+    .orders-table__amount {
+      font-weight: var(--font-weight-medium);
+    }
+
+    /* =====================================================
+       Status Badge
+       ===================================================== */
+    .status-badge {
+      display: inline-block;
+      padding: var(--space-50) var(--space-150);
+      border-radius: var(--radius-full);
+      font-size: var(--font-size-xs);
+      font-weight: var(--font-weight-medium);
+      line-height: 1.4;
+    }
+
+    .status-badge--completed {
+      background-color: color-mix(in srgb, var(--color-success) 12%, transparent);
+      color: var(--color-success);
+    }
+
+    .status-badge--pending {
+      background-color: color-mix(in srgb, var(--color-warning) 12%, transparent);
+      color: var(--color-warning);
+    }
+
+    .status-badge--cancelled {
+      background-color: color-mix(in srgb, var(--color-error) 12%, transparent);
+      color: var(--color-error);
+    }
+
+    /* =====================================================
+       Pagination
+       ===================================================== */
+    .pagination {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: var(--space-200);
+      padding: var(--space-300);
+      border-top: 1px solid var(--color-border);
+    }
+
+    .pagination__info {
+      font-size: var(--font-size-sm);
+      color: var(--color-text-secondary);
+      min-width: 4ch;
+      text-align: center;
+    }
+
+    /* =====================================================
+       Accessibility utility
+       ===================================================== */
+    .visually-hidden {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="dashboard">
+
+    <!-- ヘッダー -->
+    <header class="dashboard-header" role="banner">
+      <span class="dashboard-header__logo">Dashboard</span>
+      <div class="dashboard-header__user">
+        <span class="dashboard-header__username" aria-label="ログイン中: 管理者">管理者</span>
+        <button class="btn btn--ghost btn--sm" type="button">ログアウト</button>
+      </div>
+    </header>
+
+    <!-- メインコンテンツ -->
+    <main class="dashboard-main" id="main-content">
+
+      <!-- KPIカード -->
+      <section aria-labelledby="kpi-heading">
+        <h2 id="kpi-heading" class="dashboard-section-title">概要</h2>
+        <div class="kpi-grid">
+
+          <article class="card card--padding-lg card--shadow-md" aria-label="今月の売上">
+            <p class="kpi-card__title">今月の売上</p>
+            <p class="kpi-card__value">¥4,820,000</p>
+            <p class="kpi-card__trend kpi-card__trend--positive" aria-label="前月比 +12.5%">+12.5%</p>
+          </article>
+
+          <article class="card card--padding-lg card--shadow-md" aria-label="新規ユーザー数">
+            <p class="kpi-card__title">新規ユーザー数</p>
+            <p class="kpi-card__value">1,284</p>
+            <p class="kpi-card__trend kpi-card__trend--positive" aria-label="前月比 +8.3%">+8.3%</p>
+          </article>
+
+          <article class="card card--padding-lg card--shadow-md" aria-label="コンバージョン率">
+            <p class="kpi-card__title">コンバージョン率</p>
+            <p class="kpi-card__value">3.62%</p>
+            <p class="kpi-card__trend kpi-card__trend--negative" aria-label="前月比 -0.4%">-0.4%</p>
+          </article>
+
+        </div>
+      </section>
+
+      <!-- 注文テーブル -->
+      <section class="orders-section" aria-labelledby="orders-heading">
+        <h2 id="orders-heading" class="dashboard-section-title">最近の注文</h2>
+        <div class="card card--padding-sm card--shadow-sm">
+          <div class="table-wrapper">
+            <table class="orders-table" aria-label="最近の注文一覧">
+              <caption class="visually-hidden">最近の注文一覧</caption>
+              <thead>
+                <tr>
+                  <th scope="col">注文ID</th>
+                  <th scope="col">顧客名</th>
+                  <th scope="col">金額</th>
+                  <th scope="col">ステータス</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="orders-table__id">#ORD-0091</td>
+                  <td>田中 太郎</td>
+                  <td class="orders-table__amount">¥128,000</td>
+                  <td>
+                    <span class="status-badge status-badge--completed" aria-label="ステータス: 完了">完了</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="orders-table__id">#ORD-0090</td>
+                  <td>鈴木 花子</td>
+                  <td class="orders-table__amount">¥54,500</td>
+                  <td>
+                    <span class="status-badge status-badge--pending" aria-label="ステータス: 処理中">処理中</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="orders-table__id">#ORD-0089</td>
+                  <td>佐藤 一郎</td>
+                  <td class="orders-table__amount">¥230,000</td>
+                  <td>
+                    <span class="status-badge status-badge--completed" aria-label="ステータス: 完了">完了</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="orders-table__id">#ORD-0088</td>
+                  <td>山田 さくら</td>
+                  <td class="orders-table__amount">¥12,800</td>
+                  <td>
+                    <span class="status-badge status-badge--cancelled" aria-label="ステータス: キャンセル">キャンセル</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- ページネーション -->
+          <nav class="pagination" aria-label="注文テーブルのページネーション">
+            <button
+              class="btn btn--secondary btn--sm"
+              type="button"
+              aria-label="前のページへ"
+              disabled
+            >
+              前へ
+            </button>
+            <span class="pagination__info" aria-live="polite" aria-atomic="true">1 / 2</span>
+            <button
+              class="btn btn--secondary btn--sm"
+              type="button"
+              aria-label="次のページへ"
+            >
+              次へ
+            </button>
+          </nav>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</body>
+</html>

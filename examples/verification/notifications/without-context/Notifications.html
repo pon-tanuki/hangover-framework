@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="通知センター - 受信した通知の一覧と管理" />
+    <title>通知センター</title>
+    <link rel="stylesheet" href="Notifications.css" />
+  </head>
+  <body>
+    <!-- スキップナビゲーション -->
+    <a href="#main-content" class="skip-link">メインコンテンツへスキップ</a>
+
+    <div class="notif-page">
+      <!-- ヘッダー -->
+      <header class="notif-page__header" role="banner">
+        <div class="notif-page__header-inner">
+          <div class="notif-page__title-wrap">
+            <h1 class="notif-page__title">通知センター</h1>
+            <span
+              class="notif-page__count-badge"
+              id="unread-count-badge"
+              aria-label="未読 3 件"
+            >
+              3
+            </span>
+          </div>
+          <button
+            type="button"
+            class="btn btn--outline"
+            id="mark-all-read-btn"
+            aria-label="すべての通知を既読にする"
+          >
+            すべて既読にする
+          </button>
+        </div>
+      </header>
+
+      <!-- メインコンテンツ -->
+      <main class="notif-page__main" id="main-content" tabindex="-1">
+        <div class="notif-page__container">
+          <section aria-labelledby="notif-list-heading">
+            <h2 id="notif-list-heading" class="visually-hidden">通知一覧</h2>
+            <ul class="notif-list" id="notif-list" aria-label="通知一覧" aria-live="polite">
+              <!-- 通知アイテムはJavaScriptで挿入 -->
+            </ul>
+            <!-- 空状態（初期非表示） -->
+            <div class="notif-empty" id="notif-empty" role="status" aria-live="polite" hidden>
+              <span class="notif-empty__icon" aria-hidden="true">🔔</span>
+              <p class="notif-empty__title">通知はありません</p>
+              <p class="notif-empty__body">新しい通知が届くとここに表示されます。</p>
+            </div>
+          </section>
+        </div>
+      </main>
+    </div>
+
+    <script>
+      // --- データ ---
+      let notifications = [
+        {
+          id: "notif-001",
+          icon: "message",
+          title: "新しいメッセージ",
+          body: "田中 美咲さんからメッセージが届きました。",
+          time: "5分前",
+          read: false,
+        },
+        {
+          id: "notif-002",
+          icon: "success",
+          title: "注文が完了しました",
+          body: "ORD-0123 の配送が完了しました。ご利用ありがとうございます。",
+          time: "1時間前",
+          read: false,
+        },
+        {
+          id: "notif-003",
+          icon: "warning",
+          title: "ストレージ容量の警告",
+          body: "使用容量が 80% を超えました。不要なファイルを削除してください。",
+          time: "3時間前",
+          read: false,
+        },
+        {
+          id: "notif-004",
+          icon: "info",
+          title: "システムメンテナンスのお知らせ",
+          body: "3月10日 02:00〜04:00 にシステムメンテナンスを実施します。",
+          time: "昨日",
+          read: true,
+        },
+        {
+          id: "notif-005",
+          icon: "error",
+          title: "ログインに失敗しました",
+          body: "不明なデバイスからのログイン試行が検出されました。心当たりがない場合はパスワードを変更してください。",
+          time: "2日前",
+          read: true,
+        },
+      ];
+
+      // --- アイコン定義 ---
+      const ICON_SYMBOLS = {
+        info: "ℹ",
+        success: "✓",
+        warning: "⚠",
+        error: "✕",
+        message: "✉",
+      };
+
+      const ICON_LABELS = {
+        info: "情報",
+        success: "成功",
+        warning: "警告",
+        error: "エラー",
+        message: "メッセージ",
+      };
+
+      // --- DOM参照 ---
+      const notifList = document.getElementById("notif-list");
+      const notifEmpty = document.getElementById("notif-empty");
+      const unreadCountBadge = document.getElementById("unread-count-badge");
+      const markAllReadBtn = document.getElementById("mark-all-read-btn");
+
+      // --- ユーティリティ ---
+      function escapeHtml(str) {
+        return str
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+      }
+
+      // --- レンダリング ---
+      function render() {
+        const unreadCount = notifications.filter((n) => !n.read).length;
+
+        // ヘッダー更新
+        if (unreadCount > 0) {
+          unreadCountBadge.textContent = unreadCount;
+          unreadCountBadge.setAttribute("aria-label", `未読 ${unreadCount} 件`);
+          unreadCountBadge.hidden = false;
+        } else {
+          unreadCountBadge.hidden = true;
+        }
+
+        markAllReadBtn.disabled = unreadCount === 0;
+
+        // リスト or 空状態
+        if (notifications.length === 0) {
+          notifList.innerHTML = "";
+          notifList.hidden = true;
+          notifEmpty.hidden = false;
+        } else {
+          notifEmpty.hidden = true;
+          notifList.hidden = false;
+          notifList.innerHTML = notifications
+            .map((n) => renderNotifItem(n))
+            .join("");
+
+          // ボタンイベントを付与
+          notifications.forEach((n) => {
+            if (!n.read) {
+              const markBtn = document.getElementById(`mark-read-${n.id}`);
+              if (markBtn) {
+                markBtn.addEventListener("click", () => handleMarkRead(n.id));
+              }
+            }
+            const deleteBtn = document.getElementById(`delete-${n.id}`);
+            if (deleteBtn) {
+              deleteBtn.addEventListener("click", () => handleDelete(n.id));
+            }
+          });
+        }
+      }
+
+      function renderNotifItem(n) {
+        const readClass = n.read ? "notif-item--read" : "notif-item--unread";
+        const statusLabel = n.read ? "既読" : "未読";
+
+        const unreadBadge = !n.read
+          ? `<span class="notif-item__unread-badge" aria-label="未読">未読</span>`
+          : "";
+
+        const markReadBtn = !n.read
+          ? `<button
+               type="button"
+               class="btn btn--ghost btn--sm"
+               id="mark-read-${escapeHtml(n.id)}"
+               aria-label="「${escapeHtml(n.title)}」を既読にする"
+             >
+               既読にする
+             </button>`
+          : "";
+
+        return `
+          <li
+            class="notif-item ${readClass}"
+            aria-label="${statusLabel}: ${escapeHtml(n.title)}"
+          >
+            <div class="notif-item__icon-col">
+              <span
+                class="notif-icon notif-icon--${escapeHtml(n.icon)}"
+                role="img"
+                aria-label="${escapeHtml(ICON_LABELS[n.icon])}"
+              >
+                <span aria-hidden="true">${escapeHtml(ICON_SYMBOLS[n.icon])}</span>
+              </span>
+            </div>
+            <div class="notif-item__content">
+              <div class="notif-item__header">
+                <h3 class="notif-item__title">${escapeHtml(n.title)}</h3>
+                <div class="notif-item__meta">
+                  ${unreadBadge}
+                  <time class="notif-item__time">${escapeHtml(n.time)}</time>
+                </div>
+              </div>
+              <p class="notif-item__body">${escapeHtml(n.body)}</p>
+              <div class="notif-item__actions">
+                ${markReadBtn}
+                <button
+                  type="button"
+                  class="btn btn--ghost btn--sm btn--danger"
+                  id="delete-${escapeHtml(n.id)}"
+                  aria-label="「${escapeHtml(n.title)}」を削除する"
+                >
+                  削除
+                </button>
+              </div>
+            </div>
+          </li>
+        `;
+      }
+
+      // --- イベントハンドラー ---
+      function handleMarkRead(id) {
+        notifications = notifications.map((n) =>
+          n.id === id ? { ...n, read: true } : n
+        );
+        render();
+      }
+
+      function handleDelete(id) {
+        notifications = notifications.filter((n) => n.id !== id);
+        render();
+      }
+
+      markAllReadBtn.addEventListener("click", () => {
+        notifications = notifications.map((n) => ({ ...n, read: true }));
+        render();
+      });
+
+      // --- 初期描画 ---
+      render();
+    </script>
+  </body>
+</html>

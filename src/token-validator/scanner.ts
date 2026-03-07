@@ -85,6 +85,7 @@ function scanCSS(filePath: string, content: string, tokens: DesignToken[]): Toke
       for (const match of codePart.matchAll(/\b(\d+(?:\.\d+)?px)\b/g)) {
         const rawValue = match[1];
         if (rawValue === '0px') continue; // 0 is always acceptable
+        if (rawValue === '1px') continue; // 1px is structural (borders, visually-hidden) — below minimum spacing token
         const suggestions = matchSpacing(rawValue, tokens);
         if (suggestions.length > 0) {
           violations.push({

@@ -35,25 +35,25 @@ export function computeDQS(
     {
       name: 'Token Compliance',
       score: token.score,
-      weight: 0.25,
+      weight: 0.35,  // Highest: token drift is the primary cause of design system breakdown
       details: token.details,
     },
     {
       name: 'Component Reuse',
       score: reuse.score,
-      weight: 0.15,
+      weight: 0.25,  // High: re-implementing registered components defeats the design system
       details: reuse.details,
     },
     {
       name: 'Code Structure',
       score: structure.score,
-      weight: 0.15,
+      weight: 0.10,  // Low: least differentiating dimension in practice
       details: structure.details,
     },
     {
       name: 'Accessibility',
       score: axe?.score ?? null,
-      weight: 0.20,
+      weight: 0.30,  // High: a11y violations directly harm users
       details: axe?.details ?? 'Not measured',
       runHint: axe ? undefined : '--html <path> で有効化',
     },

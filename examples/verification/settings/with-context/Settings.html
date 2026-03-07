@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>アカウント設定</title>
+  <style>
+    :root {
+      --color-primary: #2563EB;
+      --color-primary-hover: #1D4ED8;
+      --color-success: #059669;
+      --color-error: #DC2626;
+      --color-text-primary: #111827;
+      --color-text-secondary: #6B7280;
+      --color-bg-primary: #FFFFFF;
+      --color-bg-secondary: #F9FAFB;
+      --color-bg-tertiary: #F3F4F6;
+      --color-border: #E5E7EB;
+      --color-border-strong: #D1D5DB;
+
+      --space-50: 2px;
+      --space-100: 4px;
+      --space-150: 8px;
+      --space-200: 12px;
+      --space-300: 16px;
+      --space-400: 24px;
+      --space-500: 32px;
+      --space-600: 48px;
+      --space-700: 64px;
+
+      --font-family-base: 'Garamond', 'Georgia', serif;
+      --font-size-sm: 14px;
+      --font-size-base: 16px;
+      --font-size-lg: 18px;
+      --font-size-xl: 20px;
+      --font-size-2xl: 24px;
+      --font-weight-medium: 500;
+      --font-weight-semibold: 600;
+      --font-weight-bold: 700;
+
+      --radius-sm: 4px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --radius-full: 9999px;
+
+      --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: var(--font-family-base);
+      background-color: var(--color-bg-secondary);
+      color: var(--color-text-primary);
+    }
+
+    /* ページレイアウト */
+    .settings-container {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: var(--space-600) var(--space-400);
+    }
+
+    .settings-page-title {
+      font-size: var(--font-size-2xl);
+      font-weight: var(--font-weight-bold);
+      color: var(--color-text-primary);
+      margin: 0 0 var(--space-500);
+    }
+
+    .settings-form {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-400);
+    }
+
+    /* カード */
+    .card {
+      background-color: var(--color-bg-primary);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      padding: var(--space-400);
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* セクション見出し */
+    .section-title {
+      font-size: var(--font-size-lg);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-text-primary);
+      margin: 0 0 var(--space-100);
+    }
+
+    .section-desc {
+      font-size: var(--font-size-sm);
+      color: var(--color-text-secondary);
+      margin: 0 0 var(--space-400);
+    }
+
+    /* フォームフィールド */
+    .fields {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-300);
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-150);
+    }
+
+    label {
+      font-size: var(--font-size-sm);
+      font-weight: var(--font-weight-medium);
+      color: var(--color-text-primary);
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    textarea {
+      width: 100%;
+      padding: var(--space-200) var(--space-300);
+      border: 1px solid var(--color-border-strong);
+      border-radius: var(--radius-md);
+      font-family: var(--font-family-base);
+      font-size: var(--font-size-base);
+      color: var(--color-text-primary);
+      background-color: var(--color-bg-primary);
+      box-shadow: var(--shadow-sm);
+      transition: border-color 0.15s ease;
+    }
+
+    input[type="text"]:focus,
+    input[type="email"]:focus,
+    input[type="password"]:focus,
+    textarea:focus {
+      outline: none;
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    }
+
+    input::placeholder,
+    textarea::placeholder {
+      color: var(--color-text-secondary);
+    }
+
+    textarea {
+      resize: vertical;
+    }
+
+    .field-hint {
+      font-size: var(--font-size-sm);
+      color: var(--color-text-secondary);
+      margin: 0;
+    }
+
+    /* エラーテキスト */
+    .field-error {
+      font-size: var(--font-size-sm);
+      color: var(--color-error);
+      margin: 0;
+    }
+
+    input[aria-invalid="true"] {
+      border-color: var(--color-error);
+    }
+
+    /* トグルスイッチ */
+    .toggles {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-300);
+    }
+
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-400);
+      padding: var(--space-300) 0;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .toggle-row:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .toggle-info {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-50);
+    }
+
+    .toggle-label {
+      font-size: var(--font-size-base);
+      font-weight: var(--font-weight-medium);
+      color: var(--color-text-primary);
+    }
+
+    .toggle-desc {
+      font-size: var(--font-size-sm);
+      color: var(--color-text-secondary);
+    }
+
+    /* トグルボタン */
+    .toggle-switch {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      width: 44px;
+      height: 24px;
+      border-radius: var(--radius-full);
+      border: none;
+      cursor: pointer;
+      flex-shrink: 0;
+      padding: 0;
+      transition: background-color 0.2s ease;
+    }
+
+    .toggle-switch[aria-checked="true"] {
+      background-color: var(--color-primary);
+    }
+
+    .toggle-switch[aria-checked="false"] {
+      background-color: var(--color-border-strong);
+    }
+
+    .toggle-switch:focus-visible {
+      outline: 3px solid var(--color-primary);
+      outline-offset: var(--space-50);
+    }
+
+    .toggle-thumb {
+      position: absolute;
+      top: var(--space-50);
+      left: var(--space-50);
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background-color: var(--color-bg-primary);
+      box-shadow: var(--shadow-sm);
+      transition: transform 0.2s ease;
+    }
+
+    .toggle-switch[aria-checked="true"] .toggle-thumb {
+      transform: translateX(20px);
+    }
+
+    /* アクションボタン */
+    .actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: var(--space-300);
+      padding-top: var(--space-150);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: var(--space-200) var(--space-400);
+      border-radius: var(--radius-md);
+      font-family: var(--font-family-base);
+      font-size: var(--font-size-base);
+      font-weight: var(--font-weight-semibold);
+      cursor: pointer;
+      border: none;
+      transition: background-color 0.15s ease, box-shadow 0.15s ease;
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background-color: var(--color-primary);
+      color: var(--color-bg-primary);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .btn-primary:hover {
+      background-color: var(--color-primary-hover);
+    }
+
+    .btn-primary:focus-visible {
+      outline: 3px solid var(--color-primary);
+      outline-offset: var(--space-50);
+    }
+
+    .btn-secondary {
+      background-color: var(--color-bg-primary);
+      color: var(--color-text-primary);
+      border: 1px solid var(--color-border-strong);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .btn-secondary:hover {
+      background-color: var(--color-bg-tertiary);
+    }
+
+    .btn-secondary:focus-visible {
+      outline: 3px solid var(--color-primary);
+      outline-offset: var(--space-50);
+    }
+  </style>
+</head>
+<body>
+  <div class="settings-container">
+    <h1 class="settings-page-title">アカウント設定</h1>
+
+    <form class="settings-form" novalidate aria-label="アカウント設定フォーム">
+
+      <!-- プロフィールセクション -->
+      <div class="card">
+        <section aria-labelledby="section-profile">
+          <h2 id="section-profile" class="section-title">プロフィール</h2>
+          <p class="section-desc">公開プロフィール情報を編集できます。</p>
+
+          <div class="fields">
+            <div class="form-group">
+              <label for="displayName">表示名</label>
+              <input
+                type="text"
+                id="displayName"
+                name="displayName"
+                placeholder="例: 山田 太郎"
+                autocomplete="name"
+                aria-required="true"
+              >
+            </div>
+
+            <div class="form-group">
+              <label for="email">メールアドレス</label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                placeholder="example@example.com"
+                autocomplete="email"
+                aria-required="true"
+              >
+            </div>
+
+            <div class="form-group">
+              <label for="bio">自己紹介</label>
+              <textarea
+                id="bio"
+                name="bio"
+                placeholder="自己紹介を入力してください"
+                rows="4"
+                aria-describedby="bio-hint"
+                maxlength="200"
+              ></textarea>
+              <p id="bio-hint" class="field-hint">200文字以内で入力してください。</p>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- 通知設定セクション -->
+      <div class="card">
+        <section aria-labelledby="section-notifications">
+          <h2 id="section-notifications" class="section-title">通知設定</h2>
+          <p class="section-desc">通知の受け取り方法を設定できます。</p>
+
+          <div class="toggles" role="group" aria-labelledby="section-notifications">
+            <div class="toggle-row">
+              <div class="toggle-info">
+                <span class="toggle-label" id="label-email-notify">メール通知</span>
+                <span class="toggle-desc" id="desc-email-notify">重要なお知らせをメールでお届けします。</span>
+              </div>
+              <button
+                type="button"
+                role="switch"
+                aria-checked="true"
+                aria-labelledby="label-email-notify"
+                aria-describedby="desc-email-notify"
+                class="toggle-switch"
+                onclick="this.setAttribute('aria-checked', this.getAttribute('aria-checked') === 'true' ? 'false' : 'true')"
+              >
+                <span class="toggle-thumb" aria-hidden="true"></span>
+              </button>
+            </div>
+
+            <div class="toggle-row">
+              <div class="toggle-info">
+                <span class="toggle-label" id="label-push-notify">プッシュ通知</span>
+                <span class="toggle-desc" id="desc-push-notify">ブラウザのプッシュ通知を受け取ります。</span>
+              </div>
+              <button
+                type="button"
+                role="switch"
+                aria-checked="false"
+                aria-labelledby="label-push-notify"
+                aria-describedby="desc-push-notify"
+                class="toggle-switch"
+                onclick="this.setAttribute('aria-checked', this.getAttribute('aria-checked') === 'true' ? 'false' : 'true')"
+              >
+                <span class="toggle-thumb" aria-hidden="true"></span>
+              </button>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- パスワード変更セクション -->
+      <div class="card">
+        <section aria-labelledby="section-password">
+          <h2 id="section-password" class="section-title">パスワード変更</h2>
+          <p class="section-desc">パスワードを変更する場合のみ入力してください。</p>
+
+          <div class="fields">
+            <div class="form-group">
+              <label for="currentPassword">現在のパスワード</label>
+              <input
+                type="password"
+                id="currentPassword"
+                name="currentPassword"
+                placeholder="現在のパスワード"
+                autocomplete="current-password"
+              >
+            </div>
+
+            <div class="form-group">
+              <label for="newPassword">新しいパスワード</label>
+              <input
+                type="password"
+                id="newPassword"
+                name="newPassword"
+                placeholder="8文字以上"
+                autocomplete="new-password"
+                aria-describedby="newPassword-hint"
+              >
+              <p id="newPassword-hint" class="field-hint">8文字以上で入力してください。</p>
+            </div>
+
+            <div class="form-group">
+              <label for="confirmPassword">新しいパスワード（確認）</label>
+              <input
+                type="password"
+                id="confirmPassword"
+                name="confirmPassword"
+                placeholder="パスワードを再入力"
+                autocomplete="new-password"
+              >
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- アクションボタン -->
+      <div class="actions">
+        <button type="button" class="btn btn-secondary">
+          キャンセル
+        </button>
+        <button type="submit" class="btn btn-primary">
+          変更を保存
+        </button>
+      </div>
+
+    </form>
+  </div>
+</body>
+</html>

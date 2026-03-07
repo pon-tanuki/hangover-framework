@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>商品一覧 | デザインシステム検証</title>
+
+  <!-- Design Tokens -->
+  <style>
+    :root {
+      /* Colors */
+      --color-primary: #2563EB;
+      --color-primary-hover: #1D4ED8;
+      --color-success: #059669;
+      --color-warning: #D97706;
+      --color-text-primary: #111827;
+      --color-text-secondary: #6B7280;
+      --color-bg-primary: #FFFFFF;
+      --color-bg-secondary: #F9FAFB;
+      --color-bg-tertiary: #F3F4F6;
+      --color-border: #E5E7EB;
+      --color-border-strong: #D1D5DB;
+
+      /* Spacing */
+      --space-50: 2px;
+      --space-100: 4px;
+      --space-150: 8px;
+      --space-200: 12px;
+      --space-300: 16px;
+      --space-400: 24px;
+      --space-500: 32px;
+      --space-600: 48px;
+
+      /* Typography */
+      --font-family-base: 'Garamond', 'Georgia', serif;
+      --font-size-sm: 14px;
+      --font-size-base: 16px;
+      --font-size-lg: 18px;
+      --font-size-xl: 20px;
+      --font-size-2xl: 24px;
+      --font-weight-medium: 500;
+      --font-weight-semibold: 600;
+      --font-weight-bold: 700;
+
+      /* Border Radius */
+      --radius-sm: 4px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+
+      /* Shadows */
+      --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07);
+      --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Reset */
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: var(--font-family-base);
+      background-color: var(--color-bg-secondary);
+      color: var(--color-text-primary);
+      font-size: var(--font-size-base);
+      line-height: 1.5;
+    }
+    ul { list-style: none; margin: 0; padding: 0; }
+    h1, h2, h3, p { margin: 0; }
+    button { cursor: pointer; font-family: inherit; }
+
+    /* ===== Page Layout ===== */
+    .product-list-page {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: var(--space-500) var(--space-400);
+    }
+
+    .product-list-page__header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--space-400);
+    }
+
+    .product-list-page__title {
+      font-size: var(--font-size-2xl);
+      font-weight: var(--font-weight-bold);
+    }
+
+    .product-list-page__cart-count {
+      font-size: var(--font-size-sm);
+      font-weight: var(--font-weight-medium);
+      color: var(--color-primary);
+    }
+
+    /* ===== Controls ===== */
+    .product-list-page__controls {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-300);
+      margin-bottom: var(--space-500);
+    }
+
+    /* Search (Input component simulation) */
+    .input-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-100);
+      max-width: 480px;
+    }
+
+    .input-wrapper label {
+      font-size: var(--font-size-sm);
+      font-weight: var(--font-weight-medium);
+      color: var(--color-text-primary);
+    }
+
+    .input-wrapper input {
+      font-family: var(--font-family-base);
+      font-size: var(--font-size-base);
+      color: var(--color-text-primary);
+      background-color: var(--color-bg-primary);
+      border: 1px solid var(--color-border-strong);
+      border-radius: var(--radius-md);
+      padding: var(--space-150) var(--space-200);
+      width: 100%;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    .input-wrapper input:focus {
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    }
+
+    /* Category Filters */
+    .product-list-page__filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-150);
+    }
+
+    /* ===== Button component simulation ===== */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-family-base);
+      font-weight: var(--font-weight-medium);
+      border-radius: var(--radius-md);
+      border: none;
+      transition: background-color 0.15s, box-shadow 0.15s;
+      white-space: nowrap;
+      text-decoration: none;
+    }
+
+    .btn--sm {
+      font-size: var(--font-size-sm);
+      padding: var(--space-100) var(--space-200);
+    }
+
+    .btn--md {
+      font-size: var(--font-size-base);
+      padding: var(--space-150) var(--space-300);
+    }
+
+    .btn--primary {
+      background-color: var(--color-primary);
+      color: var(--color-bg-primary);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .btn--primary:hover {
+      background-color: var(--color-primary-hover);
+    }
+
+    .btn--secondary {
+      background-color: var(--color-bg-primary);
+      color: var(--color-text-primary);
+      border: 1px solid var(--color-border-strong);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .btn--secondary:hover {
+      background-color: var(--color-bg-tertiary);
+    }
+
+    .btn--ghost {
+      background-color: transparent;
+      color: var(--color-primary);
+      border: 1px solid var(--color-primary);
+    }
+
+    .btn--ghost:hover {
+      background-color: var(--color-bg-secondary);
+    }
+
+    .btn[aria-pressed="true"].btn--secondary {
+      background-color: var(--color-primary);
+      color: var(--color-bg-primary);
+      border-color: var(--color-primary);
+    }
+
+    /* ===== Product Grid ===== */
+    .product-list-page__grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: var(--space-400);
+    }
+
+    /* Card component simulation */
+    .card {
+      background-color: var(--color-bg-primary);
+      border-radius: var(--radius-lg);
+      padding: var(--space-300);
+      box-shadow: var(--shadow-md);
+      border: 1px solid var(--color-border);
+    }
+
+    /* ===== Product Card ===== */
+    .product-card {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    .product-card__image {
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      background-color: var(--color-bg-tertiary);
+      border-radius: var(--radius-md);
+      margin-bottom: var(--space-300);
+      border: 1px solid var(--color-border);
+    }
+
+    .product-card__body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-150);
+    }
+
+    .product-card__name {
+      font-size: var(--font-size-lg);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-text-primary);
+    }
+
+    .product-card__category {
+      font-size: var(--font-size-sm);
+      color: var(--color-text-secondary);
+    }
+
+    .product-card__rating {
+      display: flex;
+      align-items: center;
+      gap: var(--space-100);
+    }
+
+    .star { font-size: var(--font-size-base); line-height: 1; }
+    .star--full { color: var(--color-warning); }
+    .star--empty { color: var(--color-border-strong); }
+
+    .product-card__rating-value {
+      font-size: var(--font-size-sm);
+      color: var(--color-text-secondary);
+      font-weight: var(--font-weight-medium);
+    }
+
+    .product-card__price {
+      display: flex;
+      align-items: baseline;
+      gap: var(--space-150);
+    }
+
+    .product-card__price-label {
+      font-size: var(--font-size-sm);
+      color: var(--color-text-secondary);
+    }
+
+    .product-card__price-value {
+      font-size: var(--font-size-xl);
+      font-weight: var(--font-weight-bold);
+      color: var(--color-text-primary);
+    }
+
+    .product-card__footer {
+      margin-top: var(--space-300);
+      padding-top: var(--space-300);
+      border-top: 1px solid var(--color-border);
+    }
+
+    /* ===== Load More ===== */
+    .product-list-page__load-more {
+      display: flex;
+      justify-content: center;
+      margin-top: var(--space-500);
+    }
+
+    /* ===== Responsive ===== */
+    @media (max-width: 640px) {
+      .product-list-page {
+        padding: var(--space-300);
+      }
+      .product-list-page__grid {
+        grid-template-columns: 1fr;
+      }
+      .product-list-page__header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-150);
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="product-list-page">
+    <header class="product-list-page__header">
+      <h1 class="product-list-page__title">商品一覧</h1>
+      <p class="product-list-page__cart-count" aria-live="polite" id="cart-count" hidden>
+        カート: <span id="cart-count-value">0</span>件
+      </p>
+    </header>
+
+    <section class="product-list-page__controls" aria-label="絞り込み">
+      <!-- Input component -->
+      <div class="input-wrapper">
+        <label for="search-input">商品を検索</label>
+        <input
+          id="search-input"
+          type="search"
+          placeholder="キーワードを入力"
+          aria-label="商品を検索"
+          autocomplete="off"
+        />
+      </div>
+
+      <!-- Category filter buttons -->
+      <div class="product-list-page__filters" role="group" aria-label="カテゴリフィルター">
+        <button class="btn btn--sm btn--primary" aria-pressed="true" data-category="すべて">すべて</button>
+        <button class="btn btn--sm btn--secondary" aria-pressed="false" data-category="家電">家電</button>
+        <button class="btn btn--sm btn--secondary" aria-pressed="false" data-category="衣類">衣類</button>
+        <button class="btn btn--sm btn--secondary" aria-pressed="false" data-category="食品">食品</button>
+      </div>
+    </section>
+
+    <!-- Product grid -->
+    <section aria-label="商品一覧">
+      <ul class="product-list-page__grid" id="product-grid" role="list">
+
+        <!-- Product 1 -->
+        <li>
+          <article class="card product-card" data-category="家電">
+            <div class="product-card__image" role="img" aria-label="ワイヤレスイヤホンの商品画像"></div>
+            <div class="product-card__body">
+              <h3 class="product-card__name">ワイヤレスイヤホン</h3>
+              <p class="product-card__category">家電</p>
+              <span class="product-card__rating" aria-label="評価: 4.5点">
+                <span class="star star--full" aria-hidden="true">★</span>
+                <span class="star star--full" aria-hidden="true">★</span>
+                <span class="star star--full" aria-hidden="true">★</span>
+                <span class="star star--full" aria-hidden="true">★</span>
+                <span class="star star--empty" aria-hidden="true">☆</span>
+                <span class="product-card__rating-value">4.5</span>
+              </span>
+              <p class="product-card__price">
+                <span class="product-card__price-label">価格</span>
+                <span class="product-card__price-value">¥12,800</span>
+              </p>
+            </div>
+            <div class="product-card__footer">
+              <button class="btn btn--sm btn--primary" aria-label="ワイヤレスイヤホンをカートに追加">カートに追加</button>
+            </div>
+          </article>
+        </li>
+
+        <!-- Product 2 -->
+        <li>
+          <article class="card product-card" data-category="家電">
+            <div class="product-card__image" role="img" aria-label="スマートウォッチの商品画像"></div>
+            <div class="product-card__body">
+              <h3 class="product-card__name">スマートウォッチ</h3>
+              <p class="product-card__category">家電</p>
+              <span class="product-card__rating" aria-label="評価: 4.2点">
+                <span class="star star--full" aria-hidden="true">★</span>
+                <span class="star star--full" aria-hidden="true">★</span>
+                <span class="star star--full" aria-hidden="true">★</span>
+                <span class="star star--full" aria-hidden="true">★</span>
+                <span class="star star--empty" aria-hidden="true">☆</span>
+                <span class="product-card__rating-value">4.2</span>
+              </span>
+              <p class="product-card__price">
+                <span class="product-card__price-label">価格</span>
+                <span class="product-card__price-value">¥34,500</span>
+              </p>
+            </div>
+            <div class="product-card__footer">
+              <button class="btn btn--sm btn--primary" aria-label="スマートウォッチをカートに追加">カートに追加</button>
+            </div>
+          </article>
+        </li>
+
+        <!-- Product 3 -->
+        <li>
+          <article class="card product-card" data-category="衣類">
+            <div class="product-card__image" role="img" aria-label="オーガニックコットンTシャツの商品画像"></div>
+            <div class="product-card__body">
+              <h3 class="product-card__name">オーガニックコットンTシャツ</h3>
+              <p class="product-card__category">衣類</p>
+              <span class="product-card__rating" aria-label="評価: 4.7点">
+                <span class="star star--full" aria-hidden="true">★</span>
+                <span class="star star--full" aria-hidden="true">★</span>
+                <span class="star star--full" aria-hidden="true">★</span>
+                <span class="star star--full" aria-hidden="true">★</span>
+                <span class="star star--full" aria-hidden="true">★</span>
+                <span class="product-card__rating-value">4.7</span>
+              </span>
+              <p class="product-card__price">
+                <span class="product-card__price-label">価格</span>
+                <span class="product-card__price-value">¥3,200</span>
+              </p>
+            </div>
+            <div class="product-card__footer">
+              <button class="btn btn--sm btn--primary" aria-label="オーガニックコットンTシャツをカートに追加">カートに追加</button>
+            </div>
+          </article>
+        </li>
+
+        <!-- Product 4 -->
+        <li>
+          <article class="card product-card" data-category="衣類">
+            <div class="product-card__image" role="img" aria-label="デニムジャケットの商品画像"></div>
+            <div class="product-card__body">
+              <h3 class="product-card__name">デニムジャケット</h3>
+              <p class="product-card__category">衣類</p>
+              <span class="product-card__rating" aria-label="評価: 4.0点">
+                <span class="star star--full" aria-hidden="true">★</span>
+                <span class="star star--full" aria-hidden="true">★</span>
+                <span class="star star--full" aria-hidden="true">★</span>
+                <span class="star star--full" aria-hidden="true">★</span>
+                <span class="star star--empty" aria-hidden="true">☆</span>
+                <span class="product-card__rating-value">4.0</span>
+              </span>
+              <p class="product-card__price">
+                <span class="product-card__price-label">価格</span>
+                <span class="product-card__price-value">¥8,900</span>
+              </p>
+            </div>
+            <div class="product-card__footer">
+              <button class="btn btn--sm btn--primary" aria-label="デニムジャケットをカートに追加">カートに追加</button>
+            </div>
+          </article>
+        </li>
+
+        <!-- Product 5 -->
+        <li>
+          <article class="card product-card" data-category="食品">
+            <div class="product-card__image" role="img" aria-label="有機栽培コーヒー豆の商品画像"></div>
+            <div class="product-card__body">
+              <h3 class="product-card__name">有機栽培コーヒー豆</h3>
+              <p class="product-card__category">食品</p>
+              <span class="product-card__rating" aria-label="評価: 4.8点">
+                <span class="star star--full" aria-hidden="true">★</span>
+                <span class="star star--full" aria-hidden="true">★</span>
+                <span class="star star--full" aria-hidden="true">★</span>
+                <span class="star star--full" aria-hidden="true">★</span>
+                <span class="star star--full" aria-hidden="true">★</span>
+                <span class="product-card__rating-value">4.8</span>
+              </span>
+              <p class="product-card__price">
+                <span class="product-card__price-label">価格</span>
+                <span class="product-card__price-value">¥1,500</span>
+              </p>
+            </div>
+            <div class="product-card__footer">
+              <button class="btn btn--sm btn--primary" aria-label="有機栽培コーヒー豆をカートに追加">カートに追加</button>
+            </div>
+          </article>
+        </li>
+
+        <!-- Product 6 -->
+        <li>
+          <article class="card product-card" data-category="食品">
+            <div class="product-card__image" role="img" aria-label="グラノーラセットの商品画像"></div>
+            <div class="product-card__body">
+              <h3 class="product-card__name">グラノーラセット</h3>
+              <p class="product-card__category">食品</p>
+              <span class="product-card__rating" aria-label="評価: 4.3点">
+                <span class="star star--full" aria-hidden="true">★</span>
+                <span class="star star--full" aria-hidden="true">★</span>
+                <span class="star star--full" aria-hidden="true">★</span>
+                <span class="star star--full" aria-hidden="true">★</span>
+                <span class="star star--empty" aria-hidden="true">☆</span>
+                <span class="product-card__rating-value">4.3</span>
+              </span>
+              <p class="product-card__price">
+                <span class="product-card__price-label">価格</span>
+                <span class="product-card__price-value">¥2,400</span>
+              </p>
+            </div>
+            <div class="product-card__footer">
+              <button class="btn btn--sm btn--primary" aria-label="グラノーラセットをカートに追加">カートに追加</button>
+            </div>
+          </article>
+        </li>
+
+      </ul>
+    </section>
+
+    <!-- Load More -->
+    <div class="product-list-page__load-more" id="load-more-container">
+      <button class="btn btn--md btn--ghost" id="load-more-btn" aria-label="商品をさらに読み込む">
+        もっと見る
+      </button>
+    </div>
+  </main>
+
+  <script>
+    // カテゴリフィルター
+    const filterBtns = document.querySelectorAll('[data-category]');
+    const cards = document.querySelectorAll('.product-card[data-category]');
+    let activeCategory = 'すべて';
+    let cartCount = 0;
+    const cartCountEl = document.getElementById('cart-count');
+    const cartCountValueEl = document.getElementById('cart-count-value');
+    const searchInput = document.getElementById('search-input');
+
+    function applyFilters() {
+      const query = searchInput.value.toLowerCase();
+      cards.forEach((card) => {
+        const cat = card.getAttribute('data-category');
+        const name = card.querySelector('.product-card__name').textContent.toLowerCase();
+        const matchCat = activeCategory === 'すべて' || cat === activeCategory;
+        const matchQuery = name.includes(query);
+        card.closest('li').hidden = !(matchCat && matchQuery);
+      });
+    }
+
+    filterBtns.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        activeCategory = btn.getAttribute('data-category');
+        filterBtns.forEach((b) => {
+          const isActive = b === btn;
+          b.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+          b.classList.toggle('btn--primary', isActive);
+          b.classList.toggle('btn--secondary', !isActive);
+        });
+        applyFilters();
+      });
+    });
+
+    searchInput.addEventListener('input', applyFilters);
+
+    // カートに追加
+    document.querySelectorAll('.product-card__footer .btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        cartCount++;
+        cartCountValueEl.textContent = cartCount;
+        cartCountEl.hidden = false;
+      });
+    });
+
+    // もっと見る（スタティックHTMLでは全件表示済みのためボタンを非表示）
+    document.getElementById('load-more-container').hidden = true;
+  </script>
+</body>
+</html>

@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="商品一覧 - 検索・フィルターで商品を探せるショッピングページ" />
+    <title>商品一覧 | ShopAI</title>
+    <link rel="stylesheet" href="ProductList.css" />
+    <style>
+      /* visually-hidden ユーティリティ（CSS内でも定義済みだが静的HTML用に念のため） */
+      .visually-hidden {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- スキップナビゲーション -->
+    <a href="#main-content" class="skip-link">メインコンテンツへスキップ</a>
+
+    <div class="product-list-page">
+      <!-- ヘッダー -->
+      <header class="site-header" role="banner">
+        <div class="site-header__inner">
+          <span class="site-header__logo">ShopAI</span>
+        </div>
+      </header>
+
+      <!-- メインコンテンツ -->
+      <main class="product-list-page__main" id="main-content" tabindex="-1">
+        <div class="product-list-page__container">
+
+          <h1 class="page-title">商品一覧</h1>
+
+          <!-- 検索バー -->
+          <section aria-labelledby="search-heading" class="search-section">
+            <h2 id="search-heading" class="visually-hidden">商品を検索</h2>
+            <div class="search-bar">
+              <label for="product-search" class="visually-hidden">商品を検索</label>
+              <span class="search-bar__icon" aria-hidden="true">🔍</span>
+              <input
+                id="product-search"
+                type="search"
+                class="search-bar__input"
+                placeholder="商品名で検索..."
+                aria-label="商品名で検索"
+                autocomplete="off"
+              />
+            </div>
+          </section>
+
+          <!-- カテゴリフィルター -->
+          <section aria-labelledby="filter-heading" class="filter-section">
+            <h2 id="filter-heading" class="visually-hidden">カテゴリで絞り込む</h2>
+            <div class="category-filter" role="group" aria-label="カテゴリフィルター">
+              <button
+                type="button"
+                class="btn btn--filter btn--filter-active"
+                aria-pressed="true"
+                data-category="all"
+              >
+                すべて
+              </button>
+              <button
+                type="button"
+                class="btn btn--filter"
+                aria-pressed="false"
+                data-category="electronics"
+              >
+                家電
+              </button>
+              <button
+                type="button"
+                class="btn btn--filter"
+                aria-pressed="false"
+                data-category="clothing"
+              >
+                衣類
+              </button>
+              <button
+                type="button"
+                class="btn btn--filter"
+                aria-pressed="false"
+                data-category="food"
+              >
+                食品
+              </button>
+            </div>
+          </section>
+
+          <!-- 件数表示 -->
+          <p
+            class="result-count"
+            id="result-count"
+            aria-live="polite"
+            aria-atomic="true"
+          >
+            6件の商品
+          </p>
+
+          <!-- 商品グリッド -->
+          <section aria-labelledby="products-heading">
+            <h2 id="products-heading" class="visually-hidden">商品一覧</h2>
+            <div class="product-grid" id="product-grid">
+
+              <!-- 商品カード 1 -->
+              <article class="product-card" aria-label="ワイヤレスイヤホン">
+                <div class="product-card__image" aria-hidden="true">
+                  <span class="product-card__image-placeholder">⚡</span>
+                </div>
+                <div class="product-card__body">
+                  <h3 class="product-card__name">ワイヤレスイヤホン</h3>
+                  <p class="product-card__rating" aria-label="評価 4.5 / 5（320件のレビュー）">
+                    <span class="product-card__stars" aria-hidden="true">★★★★½</span>
+                    <span class="product-card__review-count">(320)</span>
+                  </p>
+                  <p class="product-card__price" aria-label="価格 12,800円">¥12,800</p>
+                  <button
+                    type="button"
+                    class="btn btn--primary product-card__add-btn"
+                    aria-label="ワイヤレスイヤホンをカートに追加"
+                  >
+                    カートに追加
+                  </button>
+                </div>
+              </article>
+
+              <!-- 商品カード 2 -->
+              <article class="product-card" aria-label="スマートウォッチ">
+                <div class="product-card__image" aria-hidden="true">
+                  <span class="product-card__image-placeholder">⚡</span>
+                </div>
+                <div class="product-card__body">
+                  <h3 class="product-card__name">スマートウォッチ</h3>
+                  <p class="product-card__rating" aria-label="評価 4.2 / 5（185件のレビュー）">
+                    <span class="product-card__stars" aria-hidden="true">★★★★☆</span>
+                    <span class="product-card__review-count">(185)</span>
+                  </p>
+                  <p class="product-card__price" aria-label="価格 34,800円">¥34,800</p>
+                  <button
+                    type="button"
+                    class="btn btn--primary product-card__add-btn"
+                    aria-label="スマートウォッチをカートに追加"
+                  >
+                    カートに追加
+                  </button>
+                </div>
+              </article>
+
+              <!-- 商品カード 3 -->
+              <article class="product-card" aria-label="メンズTシャツ（白）">
+                <div class="product-card__image" aria-hidden="true">
+                  <span class="product-card__image-placeholder">👕</span>
+                </div>
+                <div class="product-card__body">
+                  <h3 class="product-card__name">メンズTシャツ（白）</h3>
+                  <p class="product-card__rating" aria-label="評価 4.0 / 5（92件のレビュー）">
+                    <span class="product-card__stars" aria-hidden="true">★★★★☆</span>
+                    <span class="product-card__review-count">(92)</span>
+                  </p>
+                  <p class="product-card__price" aria-label="価格 2,980円">¥2,980</p>
+                  <button
+                    type="button"
+                    class="btn btn--primary product-card__add-btn"
+                    aria-label="メンズTシャツ（白）をカートに追加"
+                  >
+                    カートに追加
+                  </button>
+                </div>
+              </article>
+
+              <!-- 商品カード 4 -->
+              <article class="product-card" aria-label="レディースデニムジャケット">
+                <div class="product-card__image" aria-hidden="true">
+                  <span class="product-card__image-placeholder">👕</span>
+                </div>
+                <div class="product-card__body">
+                  <h3 class="product-card__name">レディースデニムジャケット</h3>
+                  <p class="product-card__rating" aria-label="評価 4.7 / 5（241件のレビュー）">
+                    <span class="product-card__stars" aria-hidden="true">★★★★½</span>
+                    <span class="product-card__review-count">(241)</span>
+                  </p>
+                  <p class="product-card__price" aria-label="価格 8,900円">¥8,900</p>
+                  <button
+                    type="button"
+                    class="btn btn--primary product-card__add-btn"
+                    aria-label="レディースデニムジャケットをカートに追加"
+                  >
+                    カートに追加
+                  </button>
+                </div>
+              </article>
+
+              <!-- 商品カード 5 -->
+              <article class="product-card" aria-label="プレミアムグリーンティー">
+                <div class="product-card__image" aria-hidden="true">
+                  <span class="product-card__image-placeholder">🍃</span>
+                </div>
+                <div class="product-card__body">
+                  <h3 class="product-card__name">プレミアムグリーンティー</h3>
+                  <p class="product-card__rating" aria-label="評価 4.8 / 5（512件のレビュー）">
+                    <span class="product-card__stars" aria-hidden="true">★★★★½</span>
+                    <span class="product-card__review-count">(512)</span>
+                  </p>
+                  <p class="product-card__price" aria-label="価格 1,480円">¥1,480</p>
+                  <button
+                    type="button"
+                    class="btn btn--primary product-card__add-btn"
+                    aria-label="プレミアムグリーンティーをカートに追加"
+                  >
+                    カートに追加
+                  </button>
+                </div>
+              </article>
+
+              <!-- 商品カード 6 -->
+              <article class="product-card" aria-label="オーガニックナッツミックス">
+                <div class="product-card__image" aria-hidden="true">
+                  <span class="product-card__image-placeholder">🍃</span>
+                </div>
+                <div class="product-card__body">
+                  <h3 class="product-card__name">オーガニックナッツミックス</h3>
+                  <p class="product-card__rating" aria-label="評価 4.3 / 5（178件のレビュー）">
+                    <span class="product-card__stars" aria-hidden="true">★★★★☆</span>
+                    <span class="product-card__review-count">(178)</span>
+                  </p>
+                  <p class="product-card__price" aria-label="価格 2,200円">¥2,200</p>
+                  <button
+                    type="button"
+                    class="btn btn--primary product-card__add-btn"
+                    aria-label="オーガニックナッツミックスをカートに追加"
+                  >
+                    カートに追加
+                  </button>
+                </div>
+              </article>
+
+            </div>
+
+            <!-- もっと見るボタン -->
+            <div class="load-more-wrapper">
+              <button
+                type="button"
+                class="btn btn--load-more"
+                id="load-more-btn"
+                aria-label="さらに商品を表示（残り3件）"
+              >
+                もっと見る
+                <span class="btn__count" aria-hidden="true">（残り3件）</span>
+              </button>
+            </div>
+          </section>
+
+        </div>
+      </main>
+    </div>
+
+    <!-- カート追加通知（JS制御） -->
+    <div
+      id="cart-notification"
+      class="cart-notification"
+      role="status"
+      aria-live="polite"
+      aria-atomic="true"
+      style="display: none;"
+    ></div>
+
+    <script>
+      // --- モックデータ ---
+      const ALL_PRODUCTS = [
+        { id: 1, name: "ワイヤレスイヤホン",        price: 12800, rating: 4.5, reviewCount: 320, category: "electronics" },
+        { id: 2, name: "スマートウォッチ",           price: 34800, rating: 4.2, reviewCount: 185, category: "electronics" },
+        { id: 3, name: "メンズTシャツ（白）",        price:  2980, rating: 4.0, reviewCount:  92, category: "clothing"    },
+        { id: 4, name: "レディースデニムジャケット",  price:  8900, rating: 4.7, reviewCount: 241, category: "clothing"    },
+        { id: 5, name: "プレミアムグリーンティー",    price:  1480, rating: 4.8, reviewCount: 512, category: "food"        },
+        { id: 6, name: "オーガニックナッツミックス",  price:  2200, rating: 4.3, reviewCount: 178, category: "food"        },
+        { id: 7, name: "Bluetoothスピーカー",        price: 18500, rating: 4.1, reviewCount: 137, category: "electronics" },
+        { id: 8, name: "ウールセーター",             price:  6800, rating: 4.4, reviewCount:  63, category: "clothing"    },
+        { id: 9, name: "ハンドドリップコーヒー豆",    price:  1980, rating: 4.6, reviewCount: 290, category: "food"        },
+      ];
+
+      const INITIAL_VISIBLE = 6;
+      const LOAD_MORE_STEP  = 3;
+
+      const CATEGORY_ICONS = {
+        electronics: "⚡",
+        clothing:    "👕",
+        food:        "🍃",
+      };
+
+      // --- 状態 ---
+      let activeCategory = "all";
+      let searchQuery    = "";
+      let visibleCount   = INITIAL_VISIBLE;
+
+      // --- DOM参照 ---
+      const productGrid  = document.getElementById("product-grid");
+      const resultCount  = document.getElementById("result-count");
+      const loadMoreBtn  = document.getElementById("load-more-btn");
+      const searchInput  = document.getElementById("product-search");
+      const notification = document.getElementById("cart-notification");
+      const filterBtns   = document.querySelectorAll("[data-category]");
+
+      let notificationTimer = null;
+
+      // --- フィルタリング ---
+      function getFiltered() {
+        return ALL_PRODUCTS.filter((p) => {
+          const matchCat    = activeCategory === "all" || p.category === activeCategory;
+          const matchSearch = p.name.includes(searchQuery);
+          return matchCat && matchSearch;
+        });
+      }
+
+      // --- 星評価生成 ---
+      function renderStars(rating) {
+        const full  = Math.floor(rating);
+        const half  = rating % 1 >= 0.5 ? 1 : 0;
+        const empty = 5 - full - half;
+        return "★".repeat(full) + (half ? "½" : "") + "☆".repeat(empty);
+      }
+
+      // --- 商品カードHTML生成 ---
+      function createCardHTML(product) {
+        const icon = CATEGORY_ICONS[product.category] || "📦";
+        return `
+          <article class="product-card" aria-label="${escapeHtml(product.name)}">
+            <div class="product-card__image" aria-hidden="true">
+              <span class="product-card__image-placeholder">${icon}</span>
+            </div>
+            <div class="product-card__body">
+              <h3 class="product-card__name">${escapeHtml(product.name)}</h3>
+              <p class="product-card__rating"
+                 aria-label="評価 ${product.rating} / 5（${product.reviewCount}件のレビュー）">
+                <span class="product-card__stars" aria-hidden="true">${renderStars(product.rating)}</span>
+                <span class="product-card__review-count">(${product.reviewCount})</span>
+              </p>
+              <p class="product-card__price" aria-label="価格 ${product.price.toLocaleString("ja-JP")}円">
+                ¥${product.price.toLocaleString("ja-JP")}
+              </p>
+              <button
+                type="button"
+                class="btn btn--primary product-card__add-btn"
+                aria-label="${escapeHtml(product.name)}をカートに追加"
+                data-product-id="${product.id}"
+                data-product-name="${escapeHtml(product.name)}"
+              >
+                カートに追加
+              </button>
+            </div>
+          </article>
+        `;
+      }
+
+      // --- レンダリング ---
+      function render() {
+        const filtered = getFiltered();
+        const visible  = filtered.slice(0, visibleCount);
+        const remaining = filtered.length - visibleCount;
+
+        // グリッド更新
+        productGrid.innerHTML = visible.map(createCardHTML).join("");
+
+        // カートボタンのイベント登録
+        productGrid.querySelectorAll(".product-card__add-btn").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            showNotification(`「${btn.dataset.productName}」をカートに追加しました`);
+          });
+        });
+
+        // 件数表示
+        if (filtered.length === 0) {
+          resultCount.textContent = "該当する商品が見つかりませんでした";
+        } else {
+          resultCount.textContent = `${filtered.length}件の商品`;
+        }
+
+        // もっと見るボタン
+        const hasMore = remaining > 0;
+        loadMoreBtn.style.display      = hasMore ? "" : "none";
+        loadMoreBtn.parentElement.style.display = hasMore ? "flex" : "none";
+        if (hasMore) {
+          loadMoreBtn.setAttribute("aria-label", `さらに商品を表示（残り${remaining}件）`);
+          loadMoreBtn.querySelector(".btn__count").textContent = `（残り${remaining}件）`;
+        }
+      }
+
+      // --- 通知 ---
+      function showNotification(message) {
+        notification.textContent = message;
+        notification.style.display = "";
+        if (notificationTimer) clearTimeout(notificationTimer);
+        notificationTimer = setTimeout(() => {
+          notification.style.display = "none";
+        }, 3000);
+      }
+
+      // --- イベントリスナー ---
+
+      // カテゴリフィルター
+      filterBtns.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          activeCategory = btn.dataset.category;
+          visibleCount   = INITIAL_VISIBLE;
+
+          filterBtns.forEach((b) => {
+            const isActive = b.dataset.category === activeCategory;
+            b.setAttribute("aria-pressed", String(isActive));
+            b.classList.toggle("btn--filter-active", isActive);
+          });
+
+          render();
+        });
+      });
+
+      // 検索
+      searchInput.addEventListener("input", (e) => {
+        searchQuery  = e.target.value;
+        visibleCount = INITIAL_VISIBLE;
+        render();
+      });
+
+      // もっと見る
+      loadMoreBtn.addEventListener("click", () => {
+        visibleCount += LOAD_MORE_STEP;
+        render();
+      });
+
+      // --- エスケープ ---
+      function escapeHtml(str) {
+        return str
+          .replace(/&/g,  "&amp;")
+          .replace(/</g,  "&lt;")
+          .replace(/>/g,  "&gt;")
+          .replace(/"/g,  "&quot;")
+          .replace(/'/g,  "&#039;");
+      }
+
+      // --- 初期描画 ---
+      render();
+    </script>
+  </body>
+</html>
