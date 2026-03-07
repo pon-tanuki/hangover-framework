@@ -127,6 +127,94 @@
         "<div style={{border: '1px solid #E5E7EB', borderRadius: '8px', padding: '16px'}}>NG: Cardを再実装</div>",
         "<div className=\"p-4 border rounded-lg\">NG: Tailwindでカードを再実装</div>"
       ]
+    },
+    {
+      "name": "Textarea",
+      "import": "@/components/Textarea",
+      "description": "複数行テキスト入力フィールド。labelは必須。自己紹介、コメント、説明文などに使用する。生の<textarea>タグを直接使うことは禁止。",
+      "props": {
+        "label": {
+          "type": "string",
+          "required": true
+        },
+        "placeholder": {
+          "type": "string",
+          "required": false
+        },
+        "value": {
+          "type": "string",
+          "required": true
+        },
+        "onChange": {
+          "type": "(value: string) => void",
+          "required": true
+        },
+        "error": {
+          "type": "string",
+          "required": false
+        },
+        "disabled": {
+          "type": "boolean",
+          "default": false,
+          "required": false
+        },
+        "rows": {
+          "type": "number",
+          "default": 4,
+          "required": false
+        },
+        "maxLength": {
+          "type": "number",
+          "required": false
+        }
+      },
+      "examples": [
+        "<Textarea label=\"自己紹介\" value={bio} onChange={setBio} rows={4} />",
+        "<Textarea label=\"コメント\" placeholder=\"コメントを入力\" value={comment} onChange={setComment} maxLength={500} />",
+        "<Textarea label=\"備考\" value={note} onChange={setNote} error={errors.note} />"
+      ],
+      "antiPatterns": [
+        "<textarea placeholder=\"自己紹介\" /> // NG: labelなし、アクセシビリティ違反",
+        "<textarea style={{border: '1px solid #E5E7EB'}} /> // NG: 生CSS値 + labelなし"
+      ]
+    },
+    {
+      "name": "Toggle",
+      "import": "@/components/Toggle",
+      "description": "ON/OFF切り替えスイッチ。通知設定、機能のON/OFFなどに使用する。role=\"switch\"のアクセシビリティ対応済み。生の<button role=\"switch\">を実装することは禁止。",
+      "props": {
+        "label": {
+          "type": "string",
+          "required": true
+        },
+        "checked": {
+          "type": "boolean",
+          "required": true
+        },
+        "onChange": {
+          "type": "(checked: boolean) => void",
+          "required": true
+        },
+        "disabled": {
+          "type": "boolean",
+          "default": false,
+          "required": false
+        },
+        "description": {
+          "type": "string",
+          "required": false
+        }
+      },
+      "examples": [
+        "<Toggle label=\"メール通知\" checked={emailNotif} onChange={setEmailNotif} />",
+        "<Toggle label=\"プッシュ通知\" checked={pushNotif} onChange={setPushNotif} description=\"モバイルアプリへの通知\" />",
+        "<Toggle label=\"ダークモード\" checked={isDark} onChange={setIsDark} disabled />"
+      ],
+      "antiPatterns": [
+        "<button role=\"switch\" aria-checked={checked} onClick={toggle}>NG: Toggleを再実装</button>",
+        "<div onClick={toggle} className=\"toggle\">NG: divでトグルを実装</div>",
+        "<input type=\"checkbox\" /> // NG: トグルUIにはToggleコンポーネントを使うこと"
+      ]
     }
   ]
 }
