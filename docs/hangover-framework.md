@@ -32,14 +32,14 @@ HANGOVERフレームワークは、この二日酔いと体系的に戦うため
 [前夜]                    [翌朝]
 バイブコーディング ──────────────────────────────────────────
     │                                                         │
-    │          Phase 0     Phase 1     Phase 2     Phase 3    │  Phase 4
+    │          Phase 0     Phase 2     Phase 3     Phase 4    │  Phase 5
     │          飲む前に    目が覚める  被害確認    家族への    │  同じ過ちを
     │          水を飲む    (即時)      (CI)        説明        │  繰り返す
     │             │           │           │           │        │     │
     ▼             ▼           ▼           ▼           ▼        │     ▼
   LLM生成    Spec      Token       DQS       Design    │  Consistency
   コード     Compiler  Validator   Score     Review    │  Tracker
-  (夜通し飲む) (準備)  (二日酔い確認) (被害把握) (説明責任) │ (再発防止)
+  (Phase 1)  (準備)  (二日酔い確認) (被害把握) (説明責任) │ (再発防止)
                                                                │
                                                          また飲む
 ```
@@ -177,8 +177,8 @@ PR作成 → GitHub Actions
                     │
                     ▼
             ┌─────────────────────────┐
-            │  DQS: 78/100            │  ← PRに自動投稿
-            │  閾値: 80 → MARGINAL    │
+            │  DQS: 81/100            │  ← PRに自動投稿
+            │  閾値: 80 → PASS        │
             │  前PR比: +3             │
             └─────────────────────────┘
 ```

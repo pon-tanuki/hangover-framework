@@ -52,14 +52,25 @@ export function scanDirectory(dirPath: string, tokens: DesignToken[]): TokenViol
 function scanCSS(filePath: string, content: string, tokens: DesignToken[]): TokenViolation[] {
   const violations: TokenViolation[] = [];
   const lines = content.split('\n');
+  let inBlockComment = false;
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
     const trimmed = line.trim();
     const lineNum = i + 1;
 
-    // Skip blank lines and comment-only lines
-    if (!trimmed || trimmed.startsWith('/*') || trimmed.startsWith('//')) continue;
+    // Track multi-line block comments (/* ... */)
+    if (inBlockComment) {
+      if (trimmed.includes('*/')) inBlockComment = false;
+      continue;
+    }
+    if (trimmed.startsWith('/*')) {
+      if (!trimmed.includes('*/')) inBlockComment = true;
+      continue;
+    }
+
+    // Skip blank lines and single-line comments
+    if (!trimmed || trimmed.startsWith('//')) continue;
 
     // Strip inline comments before analysis (e.g. "color: #fff; /* use var(--x) */")
     const codePart = trimmed.split('/*')[0].trim();
@@ -154,7 +165,7 @@ function scanTSX(filePath: string, content: string, tokens: DesignToken[]): Toke
       const rawValue = (match[1] ?? match[2]);
       if (rawValue === '0px') continue;
       if (rawValue === '1px') continue; // 1px is structural (borders, visually-hidden)
-      const property = inferPropertyFromLine(line, `'${match[1] ?? ''}'` || `"${match[2] ?? ''}"`);
+      const property = inferPropertyFromLine(line, rawValue);
       // Choose matcher based on property type
       const isTypography = /font.?size|fontSize/i.test(property);
       const suggestions = isTypography

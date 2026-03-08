@@ -96,8 +96,8 @@ hangover dqs \
 ```
 HANGOVER Design Quality Score
 ══════════════════════════════════════════════════
-  DQS: 78/100  [PASS]
-  ████████████████████████░░░░░░
+  DQS: 81/100  [PASS]
+  █████████████████████████░░░░░
   Based on 4 of 6 dimensions
 
 Breakdown:
