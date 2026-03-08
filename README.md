@@ -96,8 +96,8 @@ hangover dqs \
 ```
 HANGOVER Design Quality Score
 ══════════════════════════════════════════════════
-  DQS: 78/100  [PASS]
-  ████████████████████████░░░░░░
+  DQS: 81/100  [PASS]
+  █████████████████████████░░░░░
   Based on 4 of 6 dimensions
 
 Breakdown:
@@ -230,7 +230,7 @@ hangover track     --report [--log hangover.log.json]
 
 ## CI/CD 統合
 
-`.github/workflows/hangover.yml` をコピーして使うと、PR ごとに DQS スコアが自動投稿されます。
+`examples/hangover.yml` を自分のリポジトリの `.github/workflows/hangover.yml` にコピーして使うと、PR ごとに DQS スコアが自動投稿されます。
 
 ```yaml
 - name: Run DQS

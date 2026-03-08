@@ -37,7 +37,7 @@ jobs:
         run: |
           npm run hangover:validate -- \
             --tokens examples/sample-design-system/tokens.css \
-            --scan src/ 2>&1 | tee token-report.txt
+            --scan examples/test-components/ 2>&1 | tee token-report.txt
         continue-on-error: true
 
       - name: Run DQS
@@ -46,7 +46,7 @@ jobs:
           npm run hangover:dqs -- \
             --tokens examples/sample-design-system/tokens.css \
             --components examples/sample-design-system/components.json \
-            --scan src/ \
+            --scan examples/test-components/ \
             --output dqs-result.json \
             2>&1 | tee dqs-report.txt
         continue-on-error: true
@@ -57,13 +57,18 @@ jobs:
           script: |
             const fs = require('fs');
 
+            // Read threshold from config (independent fallback)
+            let threshold = 80;
+            try {
+              const config = JSON.parse(fs.readFileSync('hangover.config.json', 'utf-8'));
+              threshold = config.threshold ?? 80;
+            } catch { /* use default threshold */ }
+
             // Read DQS result
             let result, overall, grade, gradeEmoji;
             try {
               result = JSON.parse(fs.readFileSync('dqs-result.json', 'utf-8'));
               overall = result.overall;
-              const config = JSON.parse(fs.readFileSync('hangover.config.json', 'utf-8'));
-              const threshold = config.threshold ?? 80;
               grade = overall >= threshold ? 'PASS' : overall >= threshold * 0.75 ? 'MARGINAL' : 'FAIL';
               gradeEmoji = overall >= threshold ? '✅' : overall >= threshold * 0.75 ? '⚠️' : '❌';
             } catch {

@@ -78,7 +78,8 @@ async function main(): Promise<void> {
 
   const tokensPath = args['tokens'] ?? config['tokens'];
   const componentsPath = args['components'] ?? config['components'];
-  const scanPath = args['scan'] ?? '.';
+  const rawScan = args['scan'] ?? config['scan'] ?? '.';
+  const scanPath = Array.isArray(rawScan) ? (rawScan as unknown as string[])[0] : String(rawScan);
   const htmlPath = args['html'];        // for axe
   const url = args['url'];             // for lighthouse
   const outputPath = args['output'];

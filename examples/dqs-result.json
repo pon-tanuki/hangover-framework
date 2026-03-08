@@ -1,42 +1,42 @@
 {
-  "overall": 51,
+  "overall": 42,
   "dimensions": [
     {
       "name": "Token Compliance",
       "score": 29,
-      "weight": 0.25,
+      "weight": 0.35,
       "details": "13 errors, 3 warnings across 2 file(s)"
     },
     {
       "name": "Component Reuse",
       "score": 38,
-      "weight": 0.15,
+      "weight": 0.25,
       "details": "3 registered / 8 total (38% reuse rate)"
     },
     {
       "name": "Code Structure",
       "score": 100,
-      "weight": 0.15,
+      "weight": 0.10,
       "details": "No structural issues"
     },
     {
       "name": "Accessibility",
       "score": null,
-      "weight": 0.2,
+      "weight": 0.30,
       "details": "Not measured",
-      "runHint": "npx @axe-core/cli <url>"
+      "runHint": "--html <path> で有効化"
     },
     {
       "name": "Performance",
       "score": null,
       "weight": 0.15,
       "details": "Not measured",
-      "runHint": "npx lighthouse <url> --output=json"
+      "runHint": "--url <url> で有効化 (要: 起動済みサーバー)"
     },
     {
       "name": "Visual Consistency",
       "score": null,
-      "weight": 0.1,
+      "weight": 0.10,
       "details": "Not measured",
       "runHint": "npx chromatic --project-token=<token>"
     }

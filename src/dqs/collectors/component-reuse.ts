@@ -12,6 +12,8 @@ const COMPONENT_RAW_EQUIVALENTS: Record<string, RegExp> = {
   Button: /<(?:button|div|span|a)\s[^>]*onClick/g,
   Input: /<input\b(?![^>]*type=['"](?:hidden|checkbox|radio|file|submit|reset|button|image|range|color)['"])/g,
   Card: /<div\s[^>]*(?:border|rounded|shadow)/g,
+  Textarea: /<textarea\b/g,
+  Toggle: /<button\s[^>]*role=['"]switch['"]/g,
 };
 
 export interface ComponentReuseResult {

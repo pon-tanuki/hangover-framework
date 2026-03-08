@@ -33,10 +33,18 @@ process.stdin.on('end', () => {
     if (!tokensPath || !fs.existsSync(tokensPath)) return;
 
     // Run validator on the written file only
-    const result = execSync(
-      `npx ts-node src/token-validator/index.ts --tokens "${tokensPath}" --scan "${filePath}"`,
-      { cwd: process.cwd(), encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] },
-    );
+    // Resolve CLI: prefer local dist build, fall back to ts-node in dev, then npx
+    const localCli = path.join(process.cwd(), 'dist', 'cli.js');
+    const localSrc = path.join(process.cwd(), 'src', 'token-validator', 'index.ts');
+    let cmd;
+    if (fs.existsSync(localCli)) {
+      cmd = `node "${localCli}" validate --tokens "${tokensPath}" --scan "${filePath}"`;
+    } else if (fs.existsSync(localSrc)) {
+      cmd = `npx ts-node src/token-validator/index.ts --tokens "${tokensPath}" --scan "${filePath}"`;
+    } else {
+      cmd = `npx hangover validate --tokens "${tokensPath}" --scan "${filePath}"`;
+    }
+    const result = execSync(cmd, { cwd: process.cwd(), encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] });
 
     if (result && result.trim()) {
       process.stdout.write('\n[HANGOVER] Token Validation Result:\n' + result + '\n');
