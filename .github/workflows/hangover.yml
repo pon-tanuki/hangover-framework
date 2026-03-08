@@ -48,7 +48,7 @@ jobs:
             --components examples/sample-design-system/components.json \
             --scan src/ \
             --output dqs-result.json \
-            --threshold 70 2>&1 | tee dqs-report.txt
+            --threshold 80 2>&1 | tee dqs-report.txt
         continue-on-error: true
 
       - name: Post DQS comment on PR
@@ -62,8 +62,8 @@ jobs:
             try {
               result = JSON.parse(fs.readFileSync('dqs-result.json', 'utf-8'));
               overall = result.overall;
-              grade = overall >= 80 ? 'PASS' : overall >= 70 ? 'MARGINAL' : 'FAIL';
-              gradeEmoji = overall >= 80 ? '✅' : overall >= 70 ? '⚠️' : '❌';
+              grade = overall >= 80 ? 'PASS' : overall >= 60 ? 'MARGINAL' : 'FAIL';
+              gradeEmoji = overall >= 80 ? '✅' : overall >= 60 ? '⚠️' : '❌';
             } catch {
               overall = 0;
               grade = 'ERROR';
@@ -172,9 +172,9 @@ jobs:
       - name: Enforce DQS threshold
         run: |
           SCORE=$(node -e "const r=require('./dqs-result.json'); console.log(r.overall)" 2>/dev/null || echo 0)
-          echo "DQS Score: $SCORE / threshold: 70"
-          if [ "$SCORE" -lt 70 ]; then
-            echo "❌ DQS $SCORE is below threshold 70. Merge blocked."
+          echo "DQS Score: $SCORE / threshold: 80"
+          if [ "$SCORE" -lt 80 ]; then
+            echo "❌ DQS $SCORE is below threshold 80. Merge blocked."
             exit 1
           fi
           echo "✅ DQS $SCORE passes threshold."
