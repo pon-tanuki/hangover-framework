@@ -2,5 +2,6 @@
   "tokens": "examples/sample-design-system/tokens.css",
   "components": "examples/sample-design-system/components.json",
   "scan": ["src/", "components/", "pages/", "app/"],
-  "ignore": ["node_modules", "dist", ".next", "build", "coverage"]
+  "ignore": ["node_modules", "dist", ".next", "build", "coverage"],
+  "threshold": 80
 }

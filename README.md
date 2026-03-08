@@ -138,13 +138,42 @@ HANGOVER Consistency Tracker
 
 ---
 
+## 効果の実証
+
+5種類のUIで同一LLMに2条件（コンテキストなし vs あり）で実装させ、DQSスコアを比較した。
+
+| UI | 条件A（なし） | 条件B（あり） | 改善幅 |
+|----|------------|------------|--------|
+| ログインフォーム | 40 [FAIL] | 100 [PASS] | +60点 |
+| ダッシュボード | 39 [FAIL] | 100 [PASS] | +61点 |
+| 設定ページ | 39 [FAIL] | 92 [PASS] | +53点 |
+| 商品一覧 | 42 [FAIL] | 99 [PASS] | +57点 |
+| 通知センター | 39 [FAIL] | 99 [PASS] | +60点 |
+| **平均** | **40 [FAIL]** | **98 [PASS]** | **+58点** |
+
+**コンテキストなし（条件A）の一様な崩壊:**
+- Token Compliance: 全UIで **0/100** — 確実に生の値（`#3b82f6`, `font-family: Inter`）を使う
+- Component Reuse: 全UIで **0/100** — 確実に Button/Input/Card を再実装する
+- Accessibility: 平均 **100/100** — a11y は元々 LLM が自発的に担保できる領域
+
+**コンテキストあり（条件B）の安定した改善:**
+- Token Compliance: 平均 **99/100** — ほぼ完全にデザイントークンを使用
+- Component Reuse: 平均 **97/100** — 登録コンポーネントをほぼ全て使用
+- Code Structure: 平均 **96/100** — 元々高い水準を維持
+
+UIの種類・複雑さに関わらず、改善効果は安定して再現した。
+
+詳細は [`examples/verification/report.md`](examples/verification/report.md) を参照。
+
+---
+
 ## コマンドリファレンス
 
 ```
 hangover compile   --tokens <tokens.css> [--components <c.json>] [--guidelines <g.md>] [--output <out.md>]
 hangover validate  --tokens <tokens.css> --scan <path> [--exit-on-error]
 hangover dqs       --tokens <tokens.css> --scan <path> [--components <c.json>]
-                   [--html <path>] [--url <url>] [--output <result.json>] [--threshold 70]
+                   [--html <path>] [--url <url>] [--output <result.json>] [--threshold 80]
 hangover track     --dqs <result.json> [--label "description"] [--log hangover.log.json]
 hangover track     --report [--log hangover.log.json]
 ```
@@ -210,7 +239,7 @@ hangover track     --report [--log hangover.log.json]
       --tokens src/styles/tokens.css \
       --scan src/ \
       --output dqs-result.json \
-      --threshold 70
+      --threshold 80
 ```
 
 DQS が閾値を下回るとマージがブロックされます。
