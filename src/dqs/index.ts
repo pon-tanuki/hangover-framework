@@ -82,7 +82,7 @@ async function main(): Promise<void> {
   const htmlPath = args['html'];        // for axe
   const url = args['url'];             // for lighthouse
   const outputPath = args['output'];
-  const threshold = Number(args['threshold'] ?? 80);
+  const threshold = Number(args['threshold'] ?? config['threshold'] ?? 80);
 
   if (!tokensPath) {
     console.error('Error: --tokens <path> required (or set "tokens" in hangover.config.json)');
