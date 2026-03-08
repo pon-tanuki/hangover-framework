@@ -230,7 +230,7 @@ hangover track     --report [--log hangover.log.json]
 
 ## CI/CD 統合
 
-`.github/workflows/hangover.yml` をコピーして使うと、PR ごとに DQS スコアが自動投稿されます。
+`examples/hangover.yml` を自分のリポジトリの `.github/workflows/hangover.yml` にコピーして使うと、PR ごとに DQS スコアが自動投稿されます。
 
 ```yaml
 - name: Run DQS
