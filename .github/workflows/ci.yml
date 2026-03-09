@@ -25,17 +25,16 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Smoke test – validate
+      - name: Smoke test – validate (clean fixture)
         run: |
           node dist/cli.js validate \
             --tokens examples/sample-design-system/tokens.css \
-            --scan examples/test-components/
-        continue-on-error: true
+            --scan examples/test-components/GoodComponent.css \
+            --exit-on-error
 
       - name: Smoke test – dqs
         run: |
           node dist/cli.js dqs \
             --tokens examples/sample-design-system/tokens.css \
             --components examples/sample-design-system/components.json \
-            --scan examples/test-components/
-        continue-on-error: true
+            --scan examples/test-components/GoodComponent.css

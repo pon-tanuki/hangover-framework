@@ -10,8 +10,10 @@ const SKIP_DIRS = new Set(['node_modules', '.git', 'dist', '.next', 'build', 'co
 // are never mistakenly counted as raw HTML equivalents.
 const COMPONENT_RAW_EQUIVALENTS: Record<string, RegExp> = {
   Button: /<(?:button|div|span|a)\s[^>]*onClick/g,
-  Input: /<input\b(?![^>]*type=['"](?:hidden|checkbox|radio|file|submit|reset|button|image|range|color)['"])/g,
-  Card: /<div\s[^>]*(?:border|rounded|shadow)/g,
+  // Match only explicit text-input types (inclusive list avoids complex exclusion logic)
+  Input: /<input\b[^>]*\btype=['"](?:text|email|password|number|search|tel|url)['"]/g,
+  // Require two card-like signals (rounded + shadow/border) to reduce false positives
+  Card: /<div\s[^>]*className[^>]*(?:rounded[^>]*shadow|shadow[^>]*rounded|rounded[^>]*border|border[^>]*rounded)/g,
   Textarea: /<textarea\b/g,
   Toggle: /<button\s[^>]*role=['"]switch['"]/g,
 };

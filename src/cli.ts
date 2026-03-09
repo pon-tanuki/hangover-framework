@@ -4,6 +4,7 @@ import { main as validateMain } from './token-validator/index';
 import { main as conventionsMain } from './convention-validator/index';
 import { main as dqsMain } from './dqs/index';
 import { main as trackMain } from './consistency-tracker/index';
+import { main as initMain } from './init/index';
 
 const HELP = `
 HANGOVER Framework v0.1.0
@@ -12,6 +13,7 @@ Human Audit Normalization for Generated Output, Verification, Enforcement, and R
 バイブコーディングの翌朝、あなたを救う5フェーズの品質改善プロセス。
 
 Commands:
+  hangover init         プロジェクトへの初期セットアップ（対話式ウィザード）
   hangover compile      [Phase 0] デザインシステムをLLM向け仕様書に変換
   hangover validate     [Phase 2] トークン違反を即時検知（フロントエンド）
   hangover conventions  [Phase 2] 規約違反を即時検知（バックエンド）
@@ -19,6 +21,7 @@ Commands:
   hangover track        [Phase 5] セッション間ドリフトを追跡
 
 Usage:
+  hangover init
   hangover compile      --tokens <tokens.css> [--components <c.json>] [--guidelines <g.md>] [--output <out.md>]
   hangover validate     --tokens <tokens.css> --scan <path> [--exit-on-error]
   hangover conventions  --conventions <conventions.json> --scan <path> [--exit-on-error]
@@ -28,6 +31,7 @@ Usage:
   hangover track        --report [--log hangover.log.json]
 
 Examples:
+  hangover init
   hangover compile      --tokens tokens.css --components components.json --output design-system.context.md
   hangover validate     --tokens tokens.css --scan src/ --exit-on-error
   hangover conventions  --conventions conventions.json --scan src/ --exit-on-error
@@ -43,6 +47,9 @@ async function run(): Promise<void> {
   process.argv.splice(2, 1);
 
   switch (subcommand) {
+    case 'init':
+      await initMain();
+      break;
     case 'compile':
       compileMain();
       break;
