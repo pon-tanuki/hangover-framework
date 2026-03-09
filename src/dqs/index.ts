@@ -4,8 +4,10 @@ import { collectCodeStructure } from './collectors/code-structure';
 import { collectComponentReuse } from './collectors/component-reuse';
 import { collectAxeScore } from './collectors/axe-score';
 import { collectLighthouseScore } from './collectors/lighthouse-score';
-import { computeDQS } from './scorer';
-import type { DQSResult } from './scorer';
+import { collectConventionScores } from './collectors/convention-score';
+import { computeDQS, computeDQSFromDimensions } from './scorer';
+import type { DQSResult, DimensionScore } from './scorer';
+import type { DomainProfile } from '../types';
 
 function parseArgs(): Record<string, string> {
   const args = process.argv.slice(2);
@@ -76,8 +78,10 @@ async function main(): Promise<void> {
     config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
   }
 
+  const profile = (args['profile'] ?? config['profile'] ?? 'frontend') as DomainProfile;
   const tokensPath = args['tokens'] ?? config['tokens'];
   const componentsPath = args['components'] ?? config['components'];
+  const conventionsPath = args['conventions'] ?? config['conventions'];
   const rawScan = args['scan'] ?? config['scan'] ?? '.';
   const scanPath = Array.isArray(rawScan) ? (rawScan as unknown as string[])[0] : String(rawScan);
   const htmlPath = args['html'];        // for axe
@@ -85,15 +89,63 @@ async function main(): Promise<void> {
   const outputPath = args['output'];
   const threshold = Number(args['threshold'] ?? config['threshold'] ?? 80);
 
-  if (!tokensPath) {
-    console.error('Error: --tokens <path> required (or set "tokens" in hangover.config.json)');
+  const needsFrontend = profile === 'frontend' || profile === 'fullstack';
+  const needsBackend = profile === 'backend' || profile === 'fullstack';
+
+  if (needsFrontend && !tokensPath) {
+    console.error('Error: --tokens <path> required for frontend/fullstack profile (or set "tokens" in hangover.config.json)');
     process.exit(1);
   }
 
-  console.log('HANGOVER DQS v0.1.0');
+  if (needsBackend && !conventionsPath) {
+    console.error('Error: --conventions <path> required for backend/fullstack profile (or set "conventions" in hangover.config.json)');
+    process.exit(1);
+  }
+
+  console.log(`HANGOVER DQS v0.1.0  [profile: ${profile}]`);
   console.log('Collecting scores...\n');
 
-  // --- Static collectors (synchronous) ---
+  let result: DQSResult;
+
+  if (profile === 'frontend') {
+    // --- Frontend path (original behavior) ---
+    result = await collectFrontendDQS(tokensPath, scanPath, componentsPath, htmlPath, url);
+  } else if (profile === 'backend') {
+    // --- Backend path ---
+    result = collectBackendDQS(conventionsPath, scanPath);
+  } else {
+    // --- Fullstack: merge both, skip duplicate Code Structure from backend ---
+    const feResult = await collectFrontendDQS(tokensPath, scanPath, componentsPath, htmlPath, url);
+    const beResult = collectBackendDQS(conventionsPath, scanPath, true);
+    const beDimensions = beResult.dimensions.filter(d => d.name !== 'Code Structure');
+    const allDimensions = [...feResult.dimensions, ...beDimensions];
+    result = computeDQSFromDimensions(allDimensions);
+  }
+
+  printDQS(result);
+
+  if (outputPath) {
+    fs.writeFileSync(outputPath, JSON.stringify(result, null, 2), 'utf-8');
+    console.log(`JSON output written to ${outputPath}`);
+  }
+
+  if (result.overall < threshold) {
+    console.error(`DQS ${result.overall} is below threshold ${threshold}. Failing.`);
+    process.exit(1);
+  }
+}
+
+// ----------------------------------------------------------------
+// Frontend DQS collection (original behavior)
+// ----------------------------------------------------------------
+
+async function collectFrontendDQS(
+  tokensPath: string,
+  scanPath: string,
+  componentsPath?: string,
+  htmlPath?: string,
+  url?: string,
+): Promise<DQSResult> {
   const token = collectTokenScore(tokensPath, scanPath);
   process.stdout.write(`  ✓ Token Compliance: ${token.score}/100\n`);
 
@@ -105,7 +157,6 @@ async function main(): Promise<void> {
     : { score: 0, registeredUsages: 0, rawHtmlUsages: 0, details: 'No components.json provided' };
   if (componentsPath) process.stdout.write(`  ✓ Component Reuse:  ${reuse.score}/100\n`);
 
-  // --- Axe (async, optional) ---
   let axeResult: { score: number; details: string } | null = null;
   if (htmlPath) {
     try {
@@ -118,7 +169,6 @@ async function main(): Promise<void> {
     }
   }
 
-  // --- Lighthouse (optional) ---
   let lighthouseResult: { score: number; details: string } | null = null;
   if (url) {
     try {
@@ -131,18 +181,53 @@ async function main(): Promise<void> {
     }
   }
 
-  const result = computeDQS(token, structure, reuse, axeResult, lighthouseResult);
-  printDQS(result);
+  return computeDQS(token, structure, reuse, axeResult, lighthouseResult);
+}
 
-  if (outputPath) {
-    fs.writeFileSync(outputPath, JSON.stringify(result, null, 2), 'utf-8');
-    console.log(`JSON output written to ${outputPath}`);
+// ----------------------------------------------------------------
+// Backend DQS collection
+// ----------------------------------------------------------------
+
+function collectBackendDQS(conventionsPath: string, scanPath: string, skipCodeStructure = false): DQSResult {
+  const conventions = collectConventionScores(conventionsPath, scanPath);
+
+  process.stdout.write(`  ✓ API Consistency:  ${conventions.apiConsistency.score}/100\n`);
+  process.stdout.write(`  ✓ Security:         ${conventions.security.score}/100\n`);
+  process.stdout.write(`  ✓ Error Handling:   ${conventions.errorHandling.score}/100\n`);
+
+  const dimensions: DimensionScore[] = [
+    {
+      name: 'API Consistency',
+      score: conventions.apiConsistency.score,
+      weight: 0.30,
+      details: conventions.apiConsistency.details,
+    },
+    {
+      name: 'Security',
+      score: conventions.security.score,
+      weight: 0.30,
+      details: conventions.security.details,
+    },
+    {
+      name: 'Error Handling',
+      score: conventions.errorHandling.score,
+      weight: 0.25,
+      details: conventions.errorHandling.details,
+    },
+  ];
+
+  if (!skipCodeStructure) {
+    const structure = collectCodeStructure(scanPath);
+    process.stdout.write(`  ✓ Code Structure:   ${structure.score}/100\n`);
+    dimensions.push({
+      name: 'Code Structure',
+      score: structure.score,
+      weight: 0.15,
+      details: structure.details,
+    });
   }
 
-  if (result.overall < threshold) {
-    console.error(`DQS ${result.overall} is below threshold ${threshold}. Failing.`);
-    process.exit(1);
-  }
+  return computeDQSFromDimensions(dimensions);
 }
 
 export { main };

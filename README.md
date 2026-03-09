@@ -4,7 +4,7 @@
 
 > バイブコーディングの翌朝、あなたを救う5フェーズの品質改善プロセス。
 
-LLM（生成AI）が生成するフロントエンドコードの品質問題を体系的に解決するツールセットです。
+LLM（生成AI）が生成するコードの品質問題を体系的に解決するツールセットです。フロントエンド（デザイントークン）とバックエンド（API規約・セキュリティ）の両方に対応しています。
 
 ---
 
@@ -44,11 +44,32 @@ npm install --save-dev hangover-framework
 ### 1. プロジェクト設定ファイルを作成
 
 ```json
-// hangover.config.json
+// hangover.config.json（フロントエンドプロジェクト）
 {
+  "profile": "frontend",
   "tokens": "src/styles/tokens.css",
   "components": "src/components/manifest.json",
   "scan": ["src/", "components/", "pages/"]
+}
+```
+
+```json
+// hangover.config.json（バックエンドプロジェクト）
+{
+  "profile": "backend",
+  "conventions": "conventions.json",
+  "scan": ["src/"]
+}
+```
+
+```json
+// hangover.config.json（フルスタックプロジェクト）
+{
+  "profile": "fullstack",
+  "tokens": "src/styles/tokens.css",
+  "components": "src/components/manifest.json",
+  "conventions": "conventions.json",
+  "scan": ["src/"]
 }
 ```
 
@@ -64,7 +85,9 @@ hangover compile \
 
 生成された `design-system.context.md` を `CLAUDE.md` から参照することで、LLM がデザインシステムを「知った状態」でコードを生成します。
 
-### 3. トークン違反を検知（Phase 2）
+### 3. 違反を検知（Phase 2）
+
+**フロントエンド: トークン違反**
 
 ```bash
 hangover validate --tokens src/styles/tokens.css --scan src/
@@ -81,6 +104,24 @@ examples/test-components/BadComponent.css
 
 Total: 11 violations  (11 errors, 0 warnings)  in 1 file(s)
 Your hangover score: Critical. How did this ship?
+```
+
+**バックエンド: 規約違反**
+
+```bash
+hangover conventions --conventions conventions.json --scan src/
+```
+
+```
+HANGOVER Convention Validator v0.1.0
+
+src/routes/users.ts
+  Line    7: [ERR]  [api-naming-kebab] Route segment "getUserList" is not kebab-case → "get-user-list"
+  Line    4: [ERR]  [hardcoded-secret] Possible hardcoded secret detected.
+  Line    9: [ERR]  [sql-injection-risk] Possible SQL injection: use parameterized queries
+  Line    7: [WARN] [error-handling-missing] Route handler missing error handling
+
+Total: 4 violations  (3 errors, 1 warning)  in 1 file(s)
 ```
 
 ### 4. 品質スコアを計算（Phase 3）
@@ -170,13 +211,44 @@ UIの種類・複雑さに関わらず、改善効果は安定して再現した
 ## コマンドリファレンス
 
 ```
-hangover compile   --tokens <tokens.css> [--components <c.json>] [--guidelines <g.md>] [--output <out.md>]
-hangover validate  --tokens <tokens.css> --scan <path> [--exit-on-error]
-hangover dqs       --tokens <tokens.css> --scan <path> [--components <c.json>]
-                   [--html <path>] [--url <url>] [--output <result.json>] [--threshold 80]
-hangover track     --dqs <result.json> [--label "description"] [--log hangover.log.json]
-hangover track     --report [--log hangover.log.json]
+hangover compile      --tokens <tokens.css> [--components <c.json>] [--guidelines <g.md>] [--output <out.md>]
+hangover validate     --tokens <tokens.css> --scan <path> [--exit-on-error]
+hangover conventions  --conventions <conventions.json> --scan <path> [--exit-on-error]
+hangover dqs          --tokens <tokens.css> --scan <path> [--components <c.json>]
+                      [--conventions <c.json>] [--profile frontend|backend|fullstack]
+                      [--html <path>] [--url <url>] [--output <result.json>] [--threshold 80]
+hangover track        --dqs <result.json> [--label "description"] [--log hangover.log.json]
+hangover track        --report [--log hangover.log.json]
 ```
+
+### プロファイル
+
+`--profile` または `hangover.config.json` の `profile` フィールドで切り替え:
+
+| プロファイル | DQS 次元 | 必須設定 |
+|---|---|---|
+| `frontend`（デフォルト） | Token Compliance, Component Reuse, Code Structure, Accessibility, Performance, Visual Consistency | `tokens` |
+| `backend` | API Consistency, Security, Error Handling, Code Structure | `conventions` |
+| `fullstack` | 上記すべて | `tokens` + `conventions` |
+
+### DQS 計算方法
+
+各次元は **100点からのペナルティ減算** で算出されます。
+
+```
+dimension_score = max(0, 100 − penalty)
+```
+
+| 次元 | ペナルティ計算 |
+|---|---|
+| Token Compliance / Component Reuse | error × 5 + warning × 2 |
+| Code Structure | 200行超ファイル × 5 + 50行超関数 × 3 |
+| Accessibility (axe) | critical × 15 + serious × 10 + moderate × 5 + minor × 2 |
+| API Consistency / Security / Error Handling | error × 5 + warning × 2 |
+
+**全体DQS** は利用可能な次元の **重み付き平均**（N/A の次元を除外して正規化）です。
+
+詳細な重み配分は [docs/hangover-framework.md](docs/hangover-framework.md) を参照してください。
 
 ---
 
@@ -189,14 +261,14 @@ hangover track     --report [--log hangover.log.json]
      │          飲む前に     目が覚める   被害確認    家族への     同じ過ちを
      │          水を飲む     (即時)       (CI)        説明         繰り返す
      ▼             ▼             ▼           ▼           ▼            ▼
-   LLM生成     Spec          Token        DQS        Design      Consistency
+   LLM生成     Spec          Token/Conv.  DQS        Design      Consistency
    コード      Compiler      Validator    Score      Review      Tracker
 ```
 
 | フェーズ | ツール | 検知タイミング | 修正コスト |
 |---------|-------|-------------|----------|
 | **0** | Spec Compiler | 生成前（予防） | ゼロ |
-| **2** | Token Validator | 生成直後（秒） | 極小 |
+| **2** | Token / Convention Validator | 生成直後（秒） | 極小 |
 | **3** | DQS | PR作成時（分） | 小 |
 | **4** | Design Review | レビュー時（時間） | 中 |
 | **5** | Consistency Tracker | マージ後（日〜週） | 大 |
@@ -263,6 +335,15 @@ hangover dqs      --tokens examples/sample-design-system/tokens.css \
                   --components examples/sample-design-system/components.json \
                   --scan examples/test-components/BadComponent.css \
                   --html examples/test-components/BadComponent.html
+
+# バックエンド規約チェック
+hangover conventions --conventions examples/sample-conventions/conventions.json \
+                     --scan examples/test-backend/
+
+# バックエンドDQS
+hangover dqs --profile backend \
+             --conventions examples/sample-conventions/conventions.json \
+             --scan examples/test-backend/
 ```
 
 ---
@@ -293,6 +374,44 @@ Storybook Component Manifest 互換のJSON形式です。
   ]
 }
 ```
+
+---
+
+## conventions.json フォーマット
+
+バックエンドコードの規約を定義するJSON形式です。
+
+```json
+{
+  "api": {
+    "naming": "kebab-case",
+    "versioning": "/api/v{n}/",
+    "responseEnvelope": {
+      "success": ["data", "meta"],
+      "error": ["code", "message", "details"]
+    }
+  },
+  "security": {
+    "requireInputValidation": true,
+    "forbiddenPatterns": [
+      "\\$\\{.*\\}.*(?:SELECT|INSERT|UPDATE|DELETE)"
+    ]
+  },
+  "errorHandling": {
+    "requireTryCatch": true
+  }
+}
+```
+
+### 検証ルール
+
+| ルール | カテゴリ | 検出内容 |
+|---|---|---|
+| `api-naming-kebab` | api-naming | camelCase/snake_case のルートパス |
+| `response-envelope` | response-structure | 標準エンベロープ未使用のレスポンス |
+| `error-handling-missing` | error-handling | try-catch なしのルートハンドラ |
+| `hardcoded-secret` | security | ハードコードされたパスワード・APIキー |
+| `sql-injection-risk` | security | 文字列補間による SQL クエリ |
 
 ---
 
