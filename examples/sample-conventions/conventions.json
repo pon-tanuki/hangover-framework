@@ -1,0 +1,25 @@
+{
+  "api": {
+    "naming": "kebab-case",
+    "versioning": "/api/v{n}/",
+    "responseEnvelope": {
+      "success": ["data", "meta"],
+      "error": ["code", "message", "details"]
+    }
+  },
+  "security": {
+    "requireInputValidation": true,
+    "forbiddenPatterns": [
+      "process\\.env\\.[A-Z_]+.*=",
+      "password\\s*[:=]\\s*['\"][^'\"]+['\"]",
+      "\\$\\{.*\\}.*(?:SELECT|INSERT|UPDATE|DELETE)"
+    ]
+  },
+  "errorHandling": {
+    "requireTryCatch": true
+  },
+  "logging": {
+    "format": "structured_json",
+    "requiredFields": ["timestamp", "level", "message"]
+  }
+}

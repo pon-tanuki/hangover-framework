@@ -1,5 +1,5 @@
 import * as fs from 'fs';
-import type { DesignToken, TokenCategory, Component, ComponentManifest } from '../types';
+import type { DesignToken, TokenCategory, Component, ComponentManifest, ConventionsConfig } from '../types';
 
 export function parseTokensCSS(filePath: string): DesignToken[] {
   const content = fs.readFileSync(filePath, 'utf-8');
@@ -45,4 +45,9 @@ export function parseComponentsJSON(filePath: string): Component[] {
 
 export function parseGuidelines(filePath: string): string {
   return fs.readFileSync(filePath, 'utf-8');
+}
+
+export function parseConventionsJSON(filePath: string): ConventionsConfig {
+  const content = fs.readFileSync(filePath, 'utf-8');
+  return JSON.parse(content) as ConventionsConfig;
 }

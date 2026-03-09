@@ -114,13 +114,15 @@ Phase 0があるだけで、LLMは：
 
 ## Phase 2: 目が覚める
 
-### ツール: Post-Generation Token Validator
+### ツール: Post-Generation Validator（Token Validator + Convention Validator）
 
 **解決するギャップ: 生成後の即時検証欠如**
 
 目覚めた瞬間の状態確認。二日酔いがひどいかどうか、最初に確認すること。
 
-LLMがファイルを書き込んだ直後（Claude CodeのPostToolUseフック）に発動し、デザイントークン違反を**準リアルタイムで検知**する。
+LLMがファイルを書き込んだ直後（Claude CodeのPostToolUseフック）に発動し、違反を**準リアルタイムで検知**する。
+
+フロントエンドコードには **Token Validator** がデザイントークン違反を、バックエンドコードには **Convention Validator** がAPI規約・セキュリティ違反を検知する。
 
 ```
 LLM → ファイル保存 → [PostToolUse Hook] → Token Validator
@@ -137,6 +139,25 @@ LLM → ファイル保存 → [PostToolUse Hook] → Token Validator
                                      └─────────────────────────┘
                                                │
                                      提案として表示（自動置換しない）
+```
+
+**バックエンド Convention Validator:**
+
+```
+LLM → ファイル保存 → Convention Validator
+                          │
+                ┌─────────┴─────────────┐
+                │  規約違反検出           │
+                │                         │
+                │  /api/getUserList        │
+                │  → /api/get-user-list   │  ← kebab-case提案
+                │                         │
+                │  API_KEY = "sk-..."     │
+                │  → process.env を使用   │  ← セキュリティ警告
+                │                         │
+                │  `SELECT ... ${id}`     │
+                │  → パラメータ化クエリ   │  ← SQL注入リスク
+                └─────────────────────────┘
 ```
 
 **なぜ自動置換しないか:**
@@ -182,6 +203,57 @@ PR作成 → GitHub Actions
             │  前PR比: +3             │
             └─────────────────────────┘
 ```
+
+**プロファイルによる次元の切り替え:**
+
+| プロファイル | DQS 次元 |
+|---|---|
+| `frontend` | Token Compliance, Component Reuse, Code Structure, Accessibility, Performance, Visual Consistency |
+| `backend` | API Consistency (0.30), Security (0.30), Error Handling (0.25), Code Structure (0.15) |
+| `fullstack` | 上記すべて |
+
+### DQS スコアの計算方法
+
+**全体スコア** = 利用可能な次元の重み付き平均（正規化）
+
+```
+DQS = Σ (dimension_score × weight) / Σ weight
+      ※ score が N/A の次元は除外して正規化
+```
+
+**各次元のスコア** = 100点からのペナルティ減算方式
+
+```
+dimension_score = max(0, 100 − penalty)
+```
+
+ペナルティの計算は次元ごとに異なる:
+
+| 次元 | ペナルティ計算 |
+|---|---|
+| Token Compliance | error × 5 + warning × 2 |
+| Component Reuse | error × 5 + warning × 2 |
+| Code Structure | 200行超のファイル数 × 5 + 50行超の関数数 × 3 |
+| Accessibility (axe) | critical × 15 + serious × 10 + moderate × 5 + minor × 2 |
+| API Consistency | error × 5 + warning × 2 |
+| Security | error × 5 + warning × 2 |
+| Error Handling | error × 5 + warning × 2 |
+
+**プロファイルごとの重み配分:**
+
+| 次元 | frontend | backend | fullstack |
+|---|---|---|---|
+| Token Compliance | 0.35 | − | 0.35 |
+| Component Reuse | 0.25 | − | 0.25 |
+| Code Structure | 0.10 | 0.15 | 0.10 |
+| Accessibility | 0.30 | − | 0.30 |
+| Performance | 0.15 | − | 0.15 |
+| Visual Consistency | 0.10 | − | 0.10 |
+| API Consistency | − | 0.30 | 0.30 |
+| Security | − | 0.30 | 0.30 |
+| Error Handling | − | 0.25 | 0.25 |
+
+> 重みの合計は 1.0 を超えることがあるが、利用可能な次元のみで正規化されるため問題ない。
 
 **「十分か」の判断を属人的にしない。** 80点以上ならマージ許可。それだけだ。
 
@@ -271,7 +343,7 @@ DQS:      87      85      82      79      74 ← アラート発火
 |---------|-----------------|-------|-------------|----------|
 | **0** | 飲む前に水を飲む | Spec Compiler | 生成前（予防） | ゼロ |
 | **1** | 夜通し飲む | LLM生成 | - | - |
-| **2** | 目が覚める | Token Validator | 生成直後（秒） | 極小 |
+| **2** | 目が覚める | Token / Convention Validator | 生成直後（秒） | 極小 |
 | **3** | 被害確認 | DQS | PR作成時（分） | 小 |
 | **4** | 家族への説明 | Design Review | レビュー時（時間） | 中 |
 | **5** | 同じ過ちを繰り返す | Consistency Tracker | マージ後（日〜週） | 大 |

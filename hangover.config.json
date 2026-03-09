@@ -1,4 +1,5 @@
 {
+  "profile": "frontend",
   "tokens": "examples/sample-design-system/tokens.css",
   "components": "examples/sample-design-system/components.json",
   "scan": ["src/", "components/", "pages/", "app/"],

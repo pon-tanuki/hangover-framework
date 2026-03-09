@@ -23,6 +23,31 @@ export interface ExternalScore {
   details: string;
 }
 
+/**
+ * Generic DQS computation from an arbitrary set of dimensions.
+ * Each profile (frontend / backend / fullstack) builds its own DimensionScore[]
+ * and passes it here.
+ */
+export function computeDQSFromDimensions(dimensions: DimensionScore[]): DQSResult {
+  const available = dimensions.filter(d => d.score !== null);
+  const totalWeight = available.reduce((sum, d) => sum + d.weight, 0);
+
+  const overall = totalWeight === 0
+    ? 0
+    : Math.round(
+        available.reduce((sum, d) => sum + d.score! * (d.weight / totalWeight), 0),
+      );
+
+  return {
+    overall,
+    dimensions,
+    availableDimensions: available.length,
+    totalDimensions: dimensions.length,
+    timestamp: new Date().toISOString(),
+  };
+}
+
+/** Frontend DQS — backward-compatible wrapper */
 export function computeDQS(
   token: TokenScoreResult,
   structure: CodeStructureResult,
@@ -35,25 +60,25 @@ export function computeDQS(
     {
       name: 'Token Compliance',
       score: token.score,
-      weight: 0.35,  // Highest: token drift is the primary cause of design system breakdown
+      weight: 0.35,
       details: token.details,
     },
     {
       name: 'Component Reuse',
       score: reuse.score,
-      weight: 0.25,  // High: re-implementing registered components defeats the design system
+      weight: 0.25,
       details: reuse.details,
     },
     {
       name: 'Code Structure',
       score: structure.score,
-      weight: 0.10,  // Low: least differentiating dimension in practice
+      weight: 0.10,
       details: structure.details,
     },
     {
       name: 'Accessibility',
       score: axe?.score ?? null,
-      weight: 0.30,  // High: a11y violations directly harm users
+      weight: 0.30,
       details: axe?.details ?? 'Not measured',
       runHint: axe ? undefined : '--html <path> で有効化',
     },
@@ -73,21 +98,5 @@ export function computeDQS(
     },
   ];
 
-  // Compute weighted average over available (non-null) dimensions only
-  const available = dimensions.filter(d => d.score !== null);
-  const totalWeight = available.reduce((sum, d) => sum + d.weight, 0);
-
-  const overall = totalWeight === 0
-    ? 0
-    : Math.round(
-        available.reduce((sum, d) => sum + d.score! * (d.weight / totalWeight), 0),
-      );
-
-  return {
-    overall,
-    dimensions,
-    availableDimensions: available.length,
-    totalDimensions: dimensions.length,
-    timestamp: new Date().toISOString(),
-  };
+  return computeDQSFromDimensions(dimensions);
 }

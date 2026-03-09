@@ -46,6 +46,62 @@ export interface DesignSystemSpec {
   };
 }
 
+// ----------------------------------------------------------------
+// Backend convention types
+// ----------------------------------------------------------------
+
+export type DomainProfile = 'frontend' | 'backend' | 'fullstack';
+
+export type ConventionCategory =
+  | 'api-naming'
+  | 'response-structure'
+  | 'error-handling'
+  | 'security'
+  | 'logging';
+
+export interface ConventionRule {
+  id: string;                     // e.g. "api-naming-kebab"
+  category: ConventionCategory;
+  description: string;
+  severity: 'error' | 'warning';
+  pattern?: string;               // regex pattern to detect violations
+}
+
+export interface ConventionViolation {
+  file: string;
+  line: number;
+  rule: ConventionRule;
+  message: string;
+  context: string;
+  severity: 'error' | 'warning';
+}
+
+export interface ConventionsConfig {
+  api?: {
+    naming?: 'kebab-case' | 'camelCase' | 'snake_case';
+    versioning?: string;          // e.g. "/api/v{n}/"
+    responseEnvelope?: {
+      success: string[];          // e.g. ["data", "meta"]
+      error: string[];            // e.g. ["code", "message", "details"]
+    };
+  };
+  security?: {
+    requireInputValidation?: boolean;
+    forbiddenPatterns?: string[];
+  };
+  errorHandling?: {
+    requireTryCatch?: boolean;
+  };
+  logging?: {
+    format?: 'structured_json' | 'text';
+    requiredFields?: string[];
+  };
+}
+
+// ----------------------------------------------------------------
+// Frontend design token types
+// ----------------------------------------------------------------
+
 export interface TokenSuggestion {
   token: string;
   tokenValue: string;
