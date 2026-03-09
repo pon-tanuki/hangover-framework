@@ -20,7 +20,8 @@
     "hangover:compile": "ts-node src/spec-compiler/index.ts",
     "hangover:validate": "ts-node src/token-validator/index.ts",
     "hangover:dqs": "ts-node src/dqs/index.ts",
-    "hangover:track": "ts-node src/consistency-tracker/index.ts"
+    "hangover:track": "ts-node src/consistency-tracker/index.ts",
+    "hangover:init": "ts-node src/init/index.ts"
   },
   "dependencies": {
     "axe-core": "^4.11.1",

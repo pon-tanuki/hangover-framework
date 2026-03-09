@@ -68,7 +68,7 @@ async function runAxeOnHtml(
   axeSource: string,
 ): Promise<Array<{ id: string; impact: string }>> {
   const dom = new JSDOM(html, {
-    runScripts: 'dangerously',
+    runScripts: 'outside-only',
     // Suppress jsdom console noise
     virtualConsole: new (require('jsdom').VirtualConsole)(),
   });
